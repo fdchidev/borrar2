@@ -1,0 +1,324 @@
+{
+  "version": "1.0.0",
+  "source": "MITRE ATT&CK Enterprise v14 (subconjunto curado para escenarios del sector financiero mexicano)",
+  "last_updated": "2026-09-01",
+  "note": "Catálogo local. La ruta de este archivo (y en Fase 2 el origen: base de datos / API MITRE) son configurables desde Config → Catálogos MITRE.",
+  "tactics": [
+    {
+      "id": "TA0043",
+      "name": "Reconocimiento",
+      "short": "Reconnaissance",
+      "techniques": [
+        {
+          "id": "T1590",
+          "name": "Recopilar información de red de la víctima"
+        },
+        {
+          "id": "T1591",
+          "name": "Recopilar información organizacional de la víctima"
+        },
+        {
+          "id": "T1592",
+          "name": "Recopilar información del host de la víctima"
+        },
+        {
+          "id": "T1596",
+          "name": "Buscar en bases de datos abiertas"
+        },
+        {
+          "id": "T1597",
+          "name": "Buscar en repositorios de inteligencia de amenazas cerrados"
+        },
+        {
+          "id": "T1598",
+          "name": "Phishing para recopilar información"
+        },
+        {
+          "id": "T1593",
+          "name": "Búsqueda en sitios web abiertos / dominios"
+        }
+      ]
+    },
+    {
+      "id": "TA0042",
+      "name": "Desarrollo de recursos",
+      "short": "Resource Development",
+      "techniques": [
+        {
+          "id": "T1583",
+          "name": "Adquirir infraestructura"
+        },
+        {
+          "id": "T1584",
+          "name": "Comprometer infraestructura"
+        },
+        {
+          "id": "T1586",
+          "name": "Comprometer cuentas"
+        },
+        {
+          "id": "T1588",
+          "name": "Obtener capacidades (malware, exploits)"
+        }
+      ]
+    },
+    {
+      "id": "TA0001",
+      "name": "Acceso inicial",
+      "short": "Initial Access",
+      "techniques": [
+        {
+          "id": "T1190",
+          "name": "Explotación de aplicación pública expuesta"
+        },
+        {
+          "id": "T1195",
+          "name": "Compromiso de cadena de suministro"
+        },
+        {
+          "id": "T1195.002",
+          "name": "Compromiso de cadena de suministro: software"
+        },
+        {
+          "id": "T1566",
+          "name": "Phishing"
+        },
+        {
+          "id": "T1566.001",
+          "name": "Phishing: adjunto malicioso"
+        },
+        {
+          "id": "T1078",
+          "name": "Cuentas válidas"
+        }
+      ]
+    },
+    {
+      "id": "TA0002",
+      "name": "Ejecución",
+      "short": "Execution",
+      "techniques": [
+        {
+          "id": "T1059",
+          "name": "Intérprete de comandos y scripts"
+        },
+        {
+          "id": "T1072",
+          "name": "Herramientas de despliegue de software de terceros"
+        },
+        {
+          "id": "T1204",
+          "name": "Ejecución por parte del usuario"
+        }
+      ]
+    },
+    {
+      "id": "TA0003",
+      "name": "Persistencia",
+      "short": "Persistence",
+      "techniques": [
+        {
+          "id": "T1078.003",
+          "name": "Cuentas válidas: cuentas de servicio en la nube"
+        },
+        {
+          "id": "T1098",
+          "name": "Manipulación de cuentas"
+        },
+        {
+          "id": "T1546",
+          "name": "Ejecución activada por eventos"
+        },
+        {
+          "id": "T1136",
+          "name": "Creación de cuenta"
+        }
+      ]
+    },
+    {
+      "id": "TA0004",
+      "name": "Escalamiento de privilegios",
+      "short": "Privilege Escalation",
+      "techniques": [
+        {
+          "id": "T1068",
+          "name": "Explotación para escalamiento de privilegios"
+        },
+        {
+          "id": "T1548",
+          "name": "Abuso de mecanismos de control de elevación"
+        },
+        {
+          "id": "T1078.001",
+          "name": "Cuentas válidas: cuentas predeterminadas"
+        }
+      ]
+    },
+    {
+      "id": "TA0005",
+      "name": "Evasión de defensas",
+      "short": "Defense Evasion",
+      "techniques": [
+        {
+          "id": "T1562",
+          "name": "Deshabilitar o modificar herramientas de seguridad"
+        },
+        {
+          "id": "T1553",
+          "name": "Subversión de controles de confianza"
+        },
+        {
+          "id": "T1070",
+          "name": "Eliminación de indicadores en el host"
+        },
+        {
+          "id": "T1078.004",
+          "name": "Cuentas válidas: cuentas de nube"
+        }
+      ]
+    },
+    {
+      "id": "TA0006",
+      "name": "Acceso a credenciales",
+      "short": "Credential Access",
+      "techniques": [
+        {
+          "id": "T1110",
+          "name": "Fuerza bruta"
+        },
+        {
+          "id": "T1110.004",
+          "name": "Fuerza bruta: credential stuffing"
+        },
+        {
+          "id": "T1552",
+          "name": "Credenciales no protegidas"
+        },
+        {
+          "id": "T1078",
+          "name": "Cuentas válidas"
+        }
+      ]
+    },
+    {
+      "id": "TA0007",
+      "name": "Descubrimiento",
+      "short": "Discovery",
+      "techniques": [
+        {
+          "id": "T1069",
+          "name": "Descubrimiento de grupos de permisos"
+        },
+        {
+          "id": "T1033",
+          "name": "Descubrimiento de propietario/usuario del sistema"
+        },
+        {
+          "id": "T1087",
+          "name": "Descubrimiento de cuentas"
+        }
+      ]
+    },
+    {
+      "id": "TA0008",
+      "name": "Movimiento lateral",
+      "short": "Lateral Movement",
+      "techniques": [
+        {
+          "id": "T1021",
+          "name": "Servicios remotos"
+        },
+        {
+          "id": "T1563",
+          "name": "Secuestro de sesión de servicios remotos"
+        },
+        {
+          "id": "T1550",
+          "name": "Uso de material de autenticación alternativo"
+        }
+      ]
+    },
+    {
+      "id": "TA0009",
+      "name": "Recolección",
+      "short": "Collection",
+      "techniques": [
+        {
+          "id": "T1078",
+          "name": "Cuentas válidas"
+        },
+        {
+          "id": "T1078.001",
+          "name": "Cuentas válidas: cuentas predeterminadas"
+        },
+        {
+          "id": "T1560",
+          "name": "Archivar datos recolectados"
+        },
+        {
+          "id": "T1114",
+          "name": "Recolección de correo electrónico"
+        }
+      ]
+    },
+    {
+      "id": "TA0011",
+      "name": "Comando y control",
+      "short": "Command and Control",
+      "techniques": [
+        {
+          "id": "T1071",
+          "name": "Protocolo de capa de aplicación"
+        },
+        {
+          "id": "T1105",
+          "name": "Transferencia de herramientas de entrada"
+        }
+      ]
+    },
+    {
+      "id": "TA0010",
+      "name": "Exfiltración",
+      "short": "Exfiltration",
+      "techniques": [
+        {
+          "id": "T1041",
+          "name": "Exfiltración sobre canal de C2"
+        },
+        {
+          "id": "T1567",
+          "name": "Exfiltración sobre servicio web"
+        },
+        {
+          "id": "T1029",
+          "name": "Exfiltración programada"
+        }
+      ]
+    },
+    {
+      "id": "TA0040",
+      "name": "Impacto",
+      "short": "Impact",
+      "techniques": [
+        {
+          "id": "T1485",
+          "name": "Destrucción de datos"
+        },
+        {
+          "id": "T1486",
+          "name": "Datos cifrados para impacto (ransomware)"
+        },
+        {
+          "id": "T1657",
+          "name": "Impacto financiero"
+        },
+        {
+          "id": "T1490",
+          "name": "Inhibición de la recuperación del sistema"
+        }
+      ]
+    }
+  ],
+  "matrix": "enterprise",
+  "matrix_label": "Enterprise (IT)"
+}

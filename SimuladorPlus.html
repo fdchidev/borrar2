@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberMaturity Simulator — SimuladorPlus</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --surface: #141720;
+  --surface2: #1a1e2a;
+  --surface3: #1f2435;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #e8eaf0;
+  --text2: #8b90a0;
+  --text3: #565c70;
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.15);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.15);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.15);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.15);
+  --purple: #a855f7;
+  --purple-dim: rgba(168,85,247,0.15);
+  --cyan: #06b6d4;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── SCANLINE OVERLAY ── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events:none; z-index:1000;
+}
+
+/* ── SCREENS ── */
+.screen { display:none; min-height:100vh; }
+.screen.active { display:flex; }
+
+/* ══════════════════════════════
+   INTRO SCREEN
+══════════════════════════════ */
+#screen-intro {
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:40px 24px;
+  position:relative;
+  overflow:hidden;
+}
+#screen-intro::after {
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(59,130,246,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+.intro-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background: var(--blue-dim);
+  border: 1px solid rgba(59,130,246,0.3);
+  border-radius:20px; padding:6px 16px;
+  font-family:var(--mono); font-size:11px; color:var(--blue);
+  letter-spacing:0.05em; margin-bottom:32px;
+}
+.intro-badge span { width:6px; height:6px; border-radius:50%; background:var(--blue); animation:pulse 1.5s ease-in-out infinite; }
+.intro-title {
+  font-family:'DM Serif Display', serif;
+  font-size:clamp(36px,6vw,64px);
+  line-height:1.05;
+  text-align:center;
+  margin-bottom:16px;
+  background: linear-gradient(135deg, #e8eaf0 0%, #94a3b8 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.intro-subtitle {
+  font-size:16px; color:var(--text2); text-align:center;
+  max-width:520px; line-height:1.6; margin-bottom:48px;
+}
+.scenario-card {
+  width:100%; max-width:640px;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:16px; overflow:hidden;
+  margin-bottom:32px;
+}
+.scenario-header {
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  padding:16px 24px;
+  display:flex; align-items:center; gap:12px;
+}
+.scenario-icon {
+  width:40px; height:40px; border-radius:10px;
+  background: var(--red-dim);
+  border:1px solid rgba(239,68,68,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+}
+.scenario-meta { flex:1; }
+.scenario-meta h3 { font-size:15px; font-weight:600; }
+.scenario-meta p { font-size:12px; color:var(--text2); margin-top:2px; font-family:var(--mono); }
+.threat-badge {
+  padding:4px 10px; border-radius:6px;
+  font-size:11px; font-family:var(--mono); font-weight:500;
+  background:var(--red-dim); color:var(--red);
+  border:1px solid rgba(239,68,68,0.25);
+}
+.scenario-body { padding:20px 24px; }
+.scenario-body p { font-size:14px; color:var(--text2); line-height:1.7; }
+.scenario-stats {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+  padding:16px 24px; border-top:1px solid var(--border);
+}
+.stat-item { text-align:center; }
+.stat-val { font-family:var(--mono); font-size:18px; font-weight:500; color:var(--text); }
+.stat-lbl { font-size:11px; color:var(--text3); margin-top:2px; }
+
+.btn-primary {
+  display:inline-flex; align-items:center; gap:10px;
+  background: var(--blue);
+  color:#fff; border:none; border-radius:12px;
+  padding:16px 40px; font-size:16px; font-weight:600;
+  font-family:var(--font); cursor:pointer;
+  transition:all 0.2s; letter-spacing:0.01em;
+}
+.btn-primary:hover { background:#2563eb; transform:translateY(-1px); }
+.btn-primary svg { transition:transform 0.2s; }
+.btn-primary:hover svg { transform:translateX(3px); }
+
+/* ══════════════════════════════
+   GAME SCREEN
+══════════════════════════════ */
+#screen-game {
+  flex-direction:row;
+  min-height:100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width:280px; flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  padding:24px 0;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.sidebar-header {
+  padding:0 20px 20px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-logo {
+  font-family:var(--mono); font-size:11px; color:var(--blue);
+  letter-spacing:0.08em; margin-bottom:12px;
+}
+.progress-bar-wrap {
+  background:var(--surface2);
+  border-radius:4px; height:6px;
+  overflow:hidden; margin-bottom:6px;
+}
+.progress-bar-fill {
+  height:100%; background:var(--blue);
+  border-radius:4px; transition:width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.progress-label {
+  display:flex; justify-content:space-between;
+  font-size:11px; color:var(--text3); font-family:var(--mono);
+}
+
+/* Score panel */
+.score-panel {
+  padding:12px 20px;
+  border-bottom:1px solid var(--border);
+}
+.score-panel-title { font-size:11px; color:var(--text3); letter-spacing:0.06em; margin-bottom:8px; font-family:var(--mono); }
+.score-main {
+  display:flex; align-items:baseline; gap:6px;
+  margin-bottom:4px;
+}
+.score-number {
+  font-family:var(--mono); font-size:28px; font-weight:500;
+  transition:color 0.3s;
+}
+.score-max { font-family:var(--mono); font-size:14px; color:var(--text3); }
+.score-delta {
+  font-family:var(--mono); font-size:13px; font-weight:500;
+  padding:2px 8px; border-radius:6px;
+  opacity:0; transform:translateY(4px);
+  transition:all 0.3s;
+}
+.score-delta.show { opacity:1; transform:translateY(0); }
+.score-delta.pos { background:var(--green-dim); color:var(--green); }
+.score-delta.neg { background:var(--red-dim); color:var(--red); }
+.score-label { font-size:11px; color:var(--text3); }
+
+/* CMM bar */
+.cmm-bar-wrap { margin-top:12px; }
+.cmm-bar-label { display:flex; justify-content:space-between; font-size:11px; color:var(--text3); margin-bottom:4px; font-family:var(--mono); }
+.cmm-segments {
+  display:grid; grid-template-columns:repeat(5,1fr); gap:2px; height:8px;
+}
+.cmm-seg {
+  border-radius:2px;
+  background:var(--surface2);
+  transition:background 0.4s;
+}
+.cmm-seg.active { background:var(--green); }
+.cmm-seg.partial { background:var(--amber); }
+
+/* Modo explicado toggle */
+.mode-panel {
+  padding:10px 20px;
+  border-bottom:1px solid var(--border);
+}
+.toggle-btn {
+  display:flex; align-items:center; gap:10px;
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:10px 14px;
+  cursor:pointer;
+  font-family:var(--font);
+  font-size:13px; font-weight:500;
+  color:var(--text2);
+  transition:all 0.2s;
+}
+.toggle-btn .toggle-dot {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--text3);
+  transition:background 0.2s, box-shadow 0.2s;
+  flex-shrink:0;
+}
+.toggle-btn.active {
+  background:var(--blue-dim);
+  border-color:rgba(59,130,246,0.4);
+  color:var(--text);
+}
+.toggle-btn.active .toggle-dot {
+  background:var(--blue);
+  box-shadow:0 0 0 3px rgba(59,130,246,0.25);
+}
+.toggle-btn:hover { border-color:var(--blue); }
+.mode-panel-hint { font-size:11px; color:var(--text3); margin-top:8px; line-height:1.5; }
+
+/* Kill chain tracker */
+.killchain {
+  padding:12px 20px;
+  border-bottom:1px solid var(--border);
+  flex:1;
+}
+.killchain-title { font-size:11px; color:var(--text3); letter-spacing:0.06em; margin-bottom:8px; font-family:var(--mono); }
+.kc-item {
+  display:flex; align-items:flex-start; gap:8px;
+  padding:5px 8px; border-radius:7px;
+  margin-bottom:2px;
+  transition:all 0.3s; cursor:default;
+  border:1px solid transparent;
+}
+.kc-item.locked { opacity:0.35; }
+.kc-item.active {
+  background:var(--amber-dim);
+  border-color:rgba(245,158,11,0.25);
+}
+.kc-item.breached {
+  background:var(--red-dim);
+  border-color:rgba(239,68,68,0.25);
+}
+.kc-item.defended {
+  background:var(--green-dim);
+  border-color:rgba(34,197,94,0.2);
+}
+.kc-dot {
+  width:7px; height:7px; border-radius:50%; flex-shrink:0;
+  background:var(--surface3);
+  transition:background 0.3s;
+  margin-top:4px;
+}
+.kc-item.active .kc-dot { background:var(--amber); animation:pulse 1.5s infinite; }
+.kc-item.breached .kc-dot { background:var(--red); }
+.kc-item.defended .kc-dot { background:var(--green); }
+.kc-text {
+  font-size:10.5px; line-height:1.3; color:var(--text2); flex:1;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.kc-item.active .kc-text { color:var(--amber); font-weight:500; }
+.kc-item.breached .kc-text { color:var(--red); }
+.kc-item.defended .kc-text { color:var(--green); }
+.kc-tag {
+  font-size:9px; font-family:var(--mono);
+  color:var(--text3); flex-shrink:0; margin-top:1px;
+}
+
+/* Decisions log */
+.decisions-log {
+  padding:12px 20px;
+}
+.decisions-title { font-size:11px; color:var(--text3); letter-spacing:0.06em; margin-bottom:10px; font-family:var(--mono); }
+.decision-item {
+  display:flex; align-items:flex-start; gap:8px;
+  margin-bottom:8px; font-size:11px; color:var(--text3);
+}
+.decision-dot {
+  width:6px; height:6px; border-radius:50%;
+  margin-top:3px; flex-shrink:0;
+}
+.decision-dot.pos { background:var(--green); }
+.decision-dot.neg { background:var(--red); }
+.decision-dot.neutral { background:var(--text3); }
+
+/* Main content */
+.game-main {
+  flex:1; padding:32px;
+  display:flex; flex-direction:column;
+  max-width:1180px;
+}
+
+/* Question header */
+.q-header {
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:20px;
+}
+.q-number {
+  font-family:var(--mono); font-size:12px;
+  color:var(--text3); letter-spacing:0.06em;
+}
+.q-tags { display:flex; gap:6px; flex-wrap:wrap; }
+.q-tag {
+  font-size:10px; font-family:var(--mono); font-weight:500;
+  padding:3px 8px; border-radius:5px;
+  border:1px solid;
+}
+.q-tag.mitre { background:var(--purple-dim); color:var(--purple); border-color:rgba(168,85,247,0.25); }
+.q-tag.role { background:var(--blue-dim); color:var(--blue); border-color:rgba(59,130,246,0.25); }
+.q-tag.diff { background:var(--amber-dim); color:var(--amber); border-color:rgba(245,158,11,0.25); }
+.q-tag.industry { background:var(--green-dim); color:var(--green); border-color:rgba(34,197,94,0.25); }
+.q-tag.mitre.clickable { cursor:pointer; }
+.q-tag.mitre.clickable:hover { background:rgba(168,85,247,0.28); border-color:rgba(168,85,247,0.5); }
+.q-tag.mitre.clickable::after { content:' ⓘ'; opacity:0.7; }
+
+/* Narrative box */
+.narrative-box {
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:12px; padding:20px 24px;
+  margin-bottom:24px;
+  position:relative; overflow:hidden;
+}
+.narrative-box::before {
+  content:'';
+  position:absolute; left:0; top:0; bottom:0; width:3px;
+  background: linear-gradient(180deg, var(--amber) 0%, var(--red) 100%);
+}
+.narrative-time {
+  font-family:var(--mono); font-size:11px; color:var(--amber);
+  margin-bottom:8px; display:flex; align-items:center; gap:6px;
+}
+.narrative-time::before { content:'▶'; font-size:8px; }
+.narrative-text { font-size:14px; line-height:1.7; color:var(--text2); }
+.narrative-text strong { color:var(--text); }
+
+/* Question */
+.question-text {
+  font-size:20px; font-weight:600; line-height:1.45;
+  margin-bottom:24px; color:var(--text);
+}
+
+/* Options */
+.options-grid {
+  display:grid; gap:10px; margin-bottom:24px;
+}
+.option-btn {
+  display:flex; align-items:flex-start; gap:14px;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:12px; padding:16px 20px;
+  cursor:pointer; text-align:left;
+  transition:all 0.2s; position:relative; overflow:hidden;
+  font-family:var(--font);
+}
+.option-btn::before {
+  content:''; position:absolute; inset:0;
+  background:transparent; transition:background 0.2s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color:var(--blue);
+  background:var(--surface2);
+  transform:translateX(3px);
+}
+.option-btn:disabled { cursor:default; }
+.option-btn.option-hidden { display:none; }
+.option-letter {
+  width:28px; height:28px; border-radius:8px; flex-shrink:0;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:12px; font-weight:500;
+  transition:all 0.2s; margin-top:1px;
+}
+.option-content { flex:1; }
+.option-text { font-size:14px; line-height:1.5; color:var(--text); }
+.option-score {
+  font-family:var(--mono); font-size:11px; margin-top:4px;
+  opacity:0; transition:opacity 0.3s;
+}
+
+/* Option states */
+.option-btn.correct {
+  border-color:var(--green);
+  background: rgba(34,197,94,0.05);
+}
+.option-btn.correct .option-letter {
+  background:var(--green); color:#000; border-color:var(--green);
+}
+.option-btn.correct .option-score { opacity:1; color:var(--green); }
+
+.option-btn.incorrect {
+  border-color:var(--red);
+  background: rgba(239,68,68,0.05);
+  opacity:0.7;
+}
+.option-btn.incorrect .option-letter {
+  background:var(--red-dim); color:var(--red); border-color:var(--red);
+}
+.option-btn.good {
+  border-color:var(--amber);
+  background: rgba(245,158,11,0.05);
+}
+.option-btn.good .option-letter {
+  background:var(--amber-dim); color:var(--amber); border-color:var(--amber);
+}
+.option-btn.good .option-score { opacity:1; color:var(--amber); }
+
+/* Feedback */
+.feedback-box {
+  background:var(--surface);
+  border-radius:12px; padding:20px 24px;
+  margin-bottom:20px; border:1px solid;
+  opacity:0; transform:translateY(8px);
+  transition:all 0.35s cubic-bezier(.4,0,.2,1);
+  display:none;
+}
+.feedback-box.show { opacity:1; transform:translateY(0); display:block; }
+.feedback-box.positive { border-color:rgba(34,197,94,0.3); }
+.feedback-box.negative { border-color:rgba(239,68,68,0.3); }
+.feedback-box.warning { border-color:rgba(245,158,11,0.3); }
+
+.feedback-header {
+  display:flex; align-items:center; gap:10px; margin-bottom:10px;
+}
+.feedback-icon { font-size:20px; }
+.feedback-title { font-size:15px; font-weight:600; }
+.feedback-box.positive .feedback-title { color:var(--green); }
+.feedback-box.negative .feedback-title { color:var(--red); }
+.feedback-box.warning .feedback-title { color:var(--amber); }
+.feedback-text { font-size:13px; color:var(--text2); line-height:1.6; }
+.feedback-mitre {
+  margin-top:10px; padding:8px 12px;
+  background:var(--purple-dim);
+  border-radius:8px; border:1px solid rgba(168,85,247,0.2);
+  font-size:12px; color:var(--purple); font-family:var(--mono);
+}
+
+/* Next btn */
+.btn-next {
+  align-self:flex-start;
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--surface2); color:var(--text);
+  border:1px solid var(--border2);
+  border-radius:10px; padding:12px 28px;
+  font-size:14px; font-weight:500;
+  font-family:var(--font); cursor:pointer;
+  transition:all 0.2s; opacity:0;
+}
+.btn-next.show { opacity:1; }
+.btn-next:hover { background:var(--surface3); border-color:var(--blue); }
+
+/* Reveal controls (modo explicado) */
+.reveal-controls {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.reveal-progress {
+  font-family:var(--mono); font-size:11px; color:var(--text3);
+}
+
+/* ══════════════════════════════
+   RESULTS SCREEN
+══════════════════════════════ */
+#screen-results {
+  flex-direction:column;
+  align-items:center;
+  padding:48px 24px;
+  position:relative;
+}
+.results-wrap { width:100%; max-width:760px; }
+.results-title {
+  font-family:'DM Serif Display', serif;
+  font-size:40px; margin-bottom:8px; text-align:center;
+}
+.results-subtitle { font-size:15px; color:var(--text2); text-align:center; margin-bottom:40px; }
+
+.result-score-hero {
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:16px; padding:32px;
+  display:flex; align-items:center; gap:40px;
+  margin-bottom:24px;
+}
+.score-gauge-wrap { text-align:center; flex-shrink:0; }
+.score-gauge-big {
+  font-family:var(--mono); font-size:64px; font-weight:500;
+  line-height:1;
+}
+.score-gauge-sub { font-size:12px; color:var(--text3); margin-top:4px; font-family:var(--mono); }
+.result-breakdown { flex:1; }
+.result-breakdown h4 { font-size:13px; color:var(--text3); margin-bottom:16px; letter-spacing:0.06em; font-family:var(--mono); }
+.breakdown-item {
+  display:flex; align-items:center; gap:12px; margin-bottom:10px;
+}
+.breakdown-label { font-size:13px; color:var(--text2); flex:1; }
+.breakdown-bar-wrap { width:120px; background:var(--surface2); border-radius:3px; height:6px; }
+.breakdown-bar { height:100%; border-radius:3px; transition:width 1s ease; }
+.breakdown-val { font-family:var(--mono); font-size:12px; color:var(--text); min-width:32px; text-align:right; }
+
+.kc-results {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:10px;
+  margin-bottom:24px;
+}
+.kc-result-item {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px; padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+}
+.kc-result-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.kc-result-dot.defended { background:var(--green); }
+.kc-result-dot.breached { background:var(--red); }
+.kc-result-dot.partial { background:var(--amber); }
+.kc-result-text { flex:1; font-size:13px; color:var(--text2); }
+.kc-result-status { font-size:11px; font-family:var(--mono); font-weight:500; }
+.defended .kc-result-status { color:var(--green); }
+.breached .kc-result-status { color:var(--red); }
+.partial .kc-result-status { color:var(--amber); }
+
+.result-actions { display:flex; gap:12px; justify-content:center; margin-top:8px; }
+.btn-secondary {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--surface2); color:var(--text);
+  border:1px solid var(--border2);
+  border-radius:10px; padding:12px 24px;
+  font-size:14px; font-weight:500;
+  font-family:var(--font); cursor:pointer; transition:all 0.2s;
+}
+.btn-secondary:hover { background:var(--surface3); border-color:var(--text3); }
+.btn-goto-sim {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--blue); color:#fff;
+  border:none; border-radius:10px; padding:12px 24px;
+  font-size:14px; font-weight:600;
+  font-family:var(--font); cursor:pointer; transition:all 0.2s;
+}
+.btn-goto-sim:hover { background:#2563eb; }
+
+/* Animations */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes fadeSlideIn {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes glitch {
+  0%,100% { transform:none; }
+  20% { transform:translateX(-1px) skewX(-0.5deg); }
+  40% { transform:translateX(1px) skewX(0.5deg); }
+}
+.animate-in { animation:fadeSlideIn 0.4s cubic-bezier(.4,0,.2,1) both; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.scenario-card.selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+}
+.scenario-card { transition: border-color 0.2s, box-shadow 0.2s; }
+.scenario-card:hover .scenario-select-hint { opacity: 1; }
+.scenario-select-hint { opacity: 0.5; transition: opacity 0.2s; }
+
+/* Timer */
+.timer-ring { position:relative; width:44px; height:44px; margin-left:auto; }
+.timer-ring svg { transform:rotate(-90deg); }
+.timer-ring circle { transition:stroke-dashoffset 1s linear; }
+.timer-num {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:13px; font-weight:500;
+}
+
+/* ══════════════════════════════
+   PANEL DE REFERENCIA MITRE (lado derecho)
+══════════════════════════════ */
+.mitre-panel {
+  position:fixed; top:0; right:-420px;
+  width:400px; max-width:92vw; height:100vh;
+  background:var(--surface);
+  border-left:1px solid var(--border2);
+  box-shadow:-8px 0 32px rgba(0,0,0,0.4);
+  z-index:1300;
+  display:flex; flex-direction:column;
+  transition:right 0.3s cubic-bezier(.4,0,.2,1);
+}
+.mitre-panel.open { right:0; }
+.mitre-panel-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 24px; border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.mitre-panel-title {
+  font-family:var(--mono); font-size:12px; letter-spacing:0.06em;
+  color:var(--purple); display:flex; align-items:center; gap:8px;
+}
+.mitre-panel-close {
+  background:none; border:1px solid var(--border2); border-radius:8px;
+  color:var(--text2); width:28px; height:28px; cursor:pointer; font-size:14px;
+  display:flex; align-items:center; justify-content:center; transition:all 0.15s;
+}
+.mitre-panel-close:hover { background:var(--surface2); color:var(--text); border-color:var(--text3); }
+.mitre-panel-body { padding:20px 24px; overflow-y:auto; flex:1; }
+.mitre-ref-block { margin-bottom:24px; }
+.mitre-ref-block:last-child { margin-bottom:0; }
+.mitre-ref-label { font-family:var(--mono); font-size:11px; color:var(--text3); letter-spacing:0.06em; margin-bottom:8px; }
+.mitre-ref-name { font-size:17px; font-weight:600; color:var(--text); margin-bottom:8px; line-height:1.3; }
+.mitre-ref-desc { font-size:13px; color:var(--text2); line-height:1.7; }
+.mitre-ref-link {
+  display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+  font-family:var(--mono); font-size:12px; color:var(--blue); text-decoration:none;
+}
+.mitre-ref-link:hover { text-decoration:underline; }
+.mitre-panel-footer {
+  padding:16px 24px; border-top:1px solid var(--border);
+  font-size:11px; color:var(--text3); line-height:1.5; flex-shrink:0;
+}
+</style>
+
+<style>
+/* ═══════════════════════════════════════════════
+   SIMULADORPLUS v2 — REDISEÑO SEGÚN MOCKUPS
+   ═══════════════════════════════════════════════ */
+.narrative-text, .question-text { color: var(--text); }
+
+/* ── INTRO: header stats ── */
+.intro-stats { display:flex; gap:24px; margin-bottom:28px; flex-wrap:wrap; justify-content:center; }
+.intro-stat { display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text2); }
+.intro-stat .dot-ico { width:15px; height:15px; border-radius:50%; background:var(--surface2); border:1px solid var(--border2); display:inline-flex; align-items:center; justify-content:center; font-size:9px; }
+
+/* ── INTRO: layout de dos columnas ── */
+.setup-grid { width:100%; max-width:1040px; display:grid; grid-template-columns:1.3fr 1fr; gap:18px; align-items:start; }
+@media (max-width:880px) { .setup-grid { grid-template-columns:1fr; } }
+.setup-col { background:var(--surface); border:1px solid var(--border2); border-radius:14px; overflow:hidden; }
+.setup-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); }
+.setup-col-title { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; }
+.setup-col-badge { width:20px; height:20px; border-radius:6px; background:var(--blue-dim); color:var(--blue); font-family:var(--mono); font-size:10px; display:flex; align-items:center; justify-content:center; }
+.setup-col-tag { font-family:var(--mono); font-size:10px; color:var(--green); }
+
+/* Lista compacta de escenarios */
+.scenario-row-list { display:flex; flex-direction:column; max-height:520px; overflow-y:auto; }
+.scenario-row { display:flex; align-items:center; gap:12px; padding:13px 18px; border-bottom:1px solid var(--border); cursor:pointer; transition:background .12s; }
+.scenario-row:last-child { border-bottom:none; }
+.scenario-row:hover { background:var(--surface2); }
+.scenario-row.selected { background:var(--blue-dim); box-shadow:inset 3px 0 0 var(--blue); }
+.scenario-row-icon { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.scenario-row-icon.sev-critico { background:var(--red); }
+.scenario-row-icon.sev-alto { background:var(--amber); }
+.scenario-row-icon.sev-link { background:var(--text2); }
+.scenario-row-meta { flex:1; min-width:0; }
+.scenario-row-name { font-size:13.5px; font-weight:600; }
+.scenario-row-sub { font-size:11px; color:var(--text2); font-family:var(--mono); margin-top:2px; }
+.scenario-row-badge { font-family:var(--mono); font-size:10px; font-weight:600; padding:3px 9px; border-radius:5px; white-space:nowrap; }
+.scenario-row-badge.sev-critico { background:var(--red-dim); color:var(--red); border:1px solid rgba(239,68,68,.3); }
+.scenario-row-badge.sev-alto { background:var(--amber-dim); color:var(--amber); border:1px solid rgba(245,158,11,.3); }
+.scenario-row-chevron { color:var(--text3); font-size:14px; flex-shrink:0; }
+
+/* Modo: filas compactas con radio */
+.mode-row-list { padding:14px 18px; display:flex; flex-direction:column; gap:8px; }
+.mode-row { display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--border2); border-radius:10px; cursor:pointer; transition:all .12s; }
+.mode-row:hover { background:var(--surface2); }
+.mode-row.selected { border-color:var(--blue); background:var(--blue-dim); }
+.mode-row-radio { width:18px; height:18px; border-radius:50%; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.mode-row.selected .mode-row-radio { border-color:var(--blue); }
+.mode-row.selected .mode-row-radio::after { content:''; width:9px; height:9px; border-radius:50%; background:var(--blue); }
+.mode-row-text { flex:1; }
+.mode-row-title { font-size:13px; font-weight:600; }
+.mode-row-desc { font-size:11.5px; color:var(--text2); margin-top:2px; line-height:1.4; }
+.mode-row-check { color:var(--blue); font-size:16px; }
+
+/* Tarjeta de configuración del ejercicio */
+.setup-summary { padding:16px 18px; border-top:1px solid var(--border); }
+.setup-summary-label { font-family:var(--mono); font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+.setup-summary-name { font-size:14.5px; font-weight:700; margin-bottom:8px; }
+.setup-summary-desc { font-size:12px; color:var(--text2); line-height:1.55; margin-bottom:14px; }
+.setup-summary-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
+.setup-summary-stat { background:var(--surface2); border-radius:8px; padding:8px; text-align:center; }
+.setup-summary-stat-val { font-family:var(--mono); font-size:14px; font-weight:600; }
+.setup-summary-stat-label { font-size:9.5px; color:var(--text2); margin-top:2px; text-transform:uppercase; letter-spacing:.03em; }
+.setup-summary-refs { font-size:10.5px; color:var(--text3); line-height:1.5; }
+.setup-summary-refs .help-icon { transform:translateY(2px); }
+
+/* ── Índice de preparación (aro circular en sidebar) ── */
+.readiness-hero { display:flex; align-items:center; gap:14px; padding:16px; }
+.readiness-ring-wrap { position:relative; width:64px; height:64px; flex-shrink:0; }
+.readiness-ring-wrap svg { transform:rotate(-90deg); }
+.readiness-ring-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:18px; font-weight:700; }
+.readiness-hero-text { flex:1; }
+.readiness-hero-title { display:flex; align-items:center; gap:5px; font-family:var(--mono); font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+.readiness-hero-sub { font-size:11px; color:var(--text3); }
+
+/* ── Tácticas MITRE ATT&CK (sidebar) — reusa .killchain/.kc-item ya definidos ── */
+
+/* ── Bitácora compacta ── */
+.decision-log-row { display:flex; align-items:center; gap:8px; padding:6px 0; font-size:11.5px; }
+.decision-log-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.decision-log-dot.pos { background:var(--green); }
+.decision-log-dot.neutral { background:var(--amber); }
+.decision-log-dot.neg { background:var(--red); }
+.decision-log-text { color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+
+/* ── Header del escenario activo en juego ── */
+.game-scenario-label { font-family:var(--mono); font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:.06em; }
+.game-scenario-name { font-size:14px; font-weight:700; margin-top:2px; }
+.game-top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+
+/* ── Decisión: número + tags ── */
+.decision-label { font-family:var(--mono); font-size:10.5px; color:var(--text2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+
+/* ── Opciones estilo "fila con radio" (como mockup) ── */
+.opt-row { display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--border2); border-radius:10px; padding:15px 18px; cursor:pointer; transition:all .15s; margin-bottom:10px; }
+.opt-row:hover:not(.opt-locked) { border-color:var(--blue); background:var(--surface2); }
+.opt-row-letter { width:26px; height:26px; border-radius:7px; background:var(--surface2); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:12px; flex-shrink:0; }
+.opt-row-text { flex:1; font-size:13.5px; line-height:1.5; }
+.opt-row-radio { width:19px; height:19px; border-radius:50%; border:2px solid var(--border2); flex-shrink:0; }
+.opt-row.opt-picked { border-color:var(--blue); background:var(--blue-dim); }
+.opt-row.opt-picked .opt-row-radio { border-color:var(--blue); background:var(--blue); position:relative; }
+.opt-row.opt-picked .opt-row-radio::after { content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; }
+.opt-row.opt-locked { cursor:default; }
+.opt-row.opt-locked:not(.opt-picked) { opacity:.5; }
+.opt-row.opt-picked.tier-0, .opt-row.opt-picked.tier-1 { border-color:var(--green); background:rgba(34,197,94,.07); }
+.opt-row.opt-picked.tier-2 { border-color:var(--amber); background:rgba(245,158,11,.07); }
+.opt-row.opt-picked.tier-3, .opt-row.opt-picked.tier-4 { border-color:var(--red); background:rgba(239,68,68,.07); }
+
+/* ── Barra de confirmación fija (reemplaza el modal) ── */
+.confirm-bar { display:flex; align-items:center; justify-content:space-between; gap:16px; background:var(--surface); border:1px solid var(--border2); border-radius:12px; padding:14px 20px; margin-top:20px; }
+.confirm-bar-hint { font-size:12.5px; color:var(--text2); }
+.confirm-bar button { padding:10px 22px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:var(--blue); color:#fff; font-family:var(--font); transition:opacity .15s; }
+.confirm-bar button:disabled { opacity:.35; cursor:not-allowed; }
+
+/* ── Panel de evaluación de la decisión (feedback) ── */
+.eval-panel { background:var(--surface); border:1px solid var(--border2); border-radius:12px; padding:18px 20px; margin-top:18px; }
+.eval-panel.tier-0, .eval-panel.tier-1 { border-color:rgba(34,197,94,.35); }
+.eval-panel.tier-2 { border-color:rgba(245,158,11,.35); }
+.eval-panel.tier-3, .eval-panel.tier-4 { border-color:rgba(239,68,68,.35); }
+.eval-panel-header { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+.eval-panel-icon { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.tier-0 .eval-panel-icon, .tier-1 .eval-panel-icon { background:var(--green-dim); color:var(--green); }
+.tier-2 .eval-panel-icon { background:var(--amber-dim); color:var(--amber); }
+.tier-3 .eval-panel-icon, .tier-4 .eval-panel-icon { background:var(--red-dim); color:var(--red); }
+.eval-panel-titles { flex:1; }
+.eval-panel-label { font-family:var(--mono); font-size:9.5px; color:var(--text2); text-transform:uppercase; letter-spacing:.06em; }
+.eval-panel-title { font-size:15px; font-weight:700; }
+.eval-panel-score { font-family:var(--mono); font-size:22px; font-weight:700; }
+.eval-panel-score span { font-size:12px; color:var(--text2); font-weight:400; }
+.eval-panel-text { font-size:13px; color:#c3c7d6; line-height:1.6; margin:10px 0 16px; }
+
+.chip-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+@media (max-width:720px) { .chip-grid { grid-template-columns:1fr 1fr; } }
+.chip { background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:10px 12px; }
+.chip-label { font-family:var(--mono); font-size:9px; color:var(--text2); text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px; }
+.chip-val { font-size:13px; font-weight:600; }
+.chip-val.pos { color:var(--green); }
+.chip-val.neg { color:var(--red); }
+
+/* Bloque expandible "Implicaciones de control" */
+.control-toggle { display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--blue); cursor:pointer; margin-top:14px; user-select:none; }
+.control-toggle .chev { transition:transform .15s; font-size:10px; }
+.control-toggle.open .chev { transform:rotate(90deg); }
+.control-body { display:none; margin-top:10px; padding:12px 14px; background:var(--surface2); border-radius:9px; border:1px solid var(--border); }
+.control-body.open { display:block; }
+.control-row { font-size:12px; color:#c3c7d6; line-height:1.5; margin-bottom:8px; }
+.control-row:last-child { margin-bottom:0; }
+.control-row strong { color:var(--text); }
+
+.eval-panel-ref { font-size:10.5px; color:var(--text3); margin-top:14px; display:flex; align-items:center; gap:6px; }
+
+/* ── Ayuda contextual ── */
+.help-icon { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:var(--surface3); color:var(--text2); font-size:9px; font-family:var(--mono); cursor:help; position:relative; flex-shrink:0; }
+.help-icon:hover .help-tooltip { display:block; }
+.help-tooltip { display:none; position:absolute; bottom:130%; left:50%; transform:translateX(-50%); width:230px; background:#0a0c11; border:1px solid var(--border2); border-radius:8px; padding:10px 12px; font-size:11px; font-family:var(--font); color:var(--text2); line-height:1.5; z-index:80; box-shadow:0 8px 24px rgba(0,0,0,.4); text-transform:none; letter-spacing:0; }
+
+/* ── Estado explícito de interfaz ── */
+.state-banner { display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--text2); padding:5px 12px; background:var(--surface2); border:1px solid var(--border); border-radius:20px; width:fit-content; margin-bottom:14px; }
+.state-banner .dot { width:6px; height:6px; border-radius:50%; background:var(--blue); }
+.state-banner.state-tiempo .dot { background:var(--amber); animation:pulse 1s ease-in-out infinite; }
+.state-banner.state-decision .dot { background:var(--purple); }
+.state-banner.state-confirmacion .dot { background:var(--amber); }
+.state-banner.state-registrada .dot { background:var(--green); }
+.state-banner.state-consecuencia .dot { background:var(--red); }
+.state-banner.state-siguiente .dot { background:var(--blue); }
+.timer-label-active { font-family:var(--mono); font-size:10px; color:var(--amber); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; text-align:center; }
+.timer-ring.armed .timer-num { animation:pulse 1s ease-in-out infinite; }
+
+/* ── Layout de dos columnas: opciones a la izquierda, evaluación a la derecha ── */
+.game-grid { display:grid; grid-template-columns:1fr 380px; gap:28px; align-items:start; }
+.game-right { position:sticky; top:32px; }
+.game-right .eval-panel { margin-top:0; }
+.game-right .chip-grid { grid-template-columns:1fr 1fr; }
+@media (max-width:1000px) {
+  .game-grid { grid-template-columns:1fr; }
+  .game-right { position:static; }
+}
+
+/* ── REPORTE EJECUTIVO ── */
+.report-topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 32px; border-bottom:1px solid var(--border); }
+.report-topbar .sidebar-logo { font-size:13px; }
+.report-topbar-actions { display:flex; gap:10px; }
+.report-topbar-actions button { padding:8px 14px; border-radius:8px; font-size:12px; font-family:var(--font); font-weight:600; cursor:pointer; background:var(--surface2); border:1px solid var(--border2); color:var(--text); display:flex; align-items:center; gap:6px; }
+.report-topbar-actions button.primary { background:var(--blue); border-color:var(--blue); color:#fff; }
+.report-body { max-width:1040px; margin:0 auto; padding:28px 32px 60px; }
+.report-eval-label { font-family:var(--mono); font-size:10.5px; color:var(--blue); text-transform:uppercase; letter-spacing:.06em; margin-bottom:16px; }
+.report-hero { display:flex; align-items:center; gap:24px; margin-bottom:26px; flex-wrap:wrap; }
+.report-gauge-wrap { position:relative; width:120px; height:120px; flex-shrink:0; }
+.report-gauge-wrap svg { transform:rotate(-90deg); }
+.report-gauge-num { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.report-gauge-num .n { font-family:var(--mono); font-size:26px; font-weight:700; }
+.report-gauge-num .d { font-size:9px; color:var(--text2); font-family:var(--mono); }
+.report-hero-text { flex:1; min-width:220px; }
+.report-hero-title { font-family:'DM Serif Display', serif; font-size:26px; margin-bottom:6px; }
+.report-hero-sub { font-size:13px; color:var(--text2); line-height:1.5; max-width:480px; }
+.report-stat-chips { display:flex; gap:10px; flex-wrap:wrap; }
+.report-stat-chip { background:var(--surface); border:1px solid var(--border2); border-radius:10px; padding:10px 16px; text-align:center; min-width:100px; }
+.report-stat-chip .k { font-size:10px; color:var(--text2); font-family:var(--mono); text-transform:uppercase; }
+.report-stat-chip .v { font-size:16px; font-weight:700; margin-top:3px; }
+
+.report-cmm-note { display:flex; gap:10px; align-items:flex-start; background:rgba(245,158,11,.07); border:1px solid rgba(245,158,11,.25); border-radius:10px; padding:12px 16px; font-size:12px; color:#e8c07a; line-height:1.5; margin-bottom:26px; }
+
+.report-2col { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:8px; }
+@media (max-width:760px) { .report-2col { grid-template-columns:1fr; } }
+.report-panel { background:var(--surface); border:1px solid var(--border2); border-radius:14px; padding:18px 20px; }
+.report-panel-title { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; margin-bottom:4px; }
+.report-panel-num { width:20px; height:20px; border-radius:6px; background:var(--blue-dim); color:var(--blue); font-family:var(--mono); font-size:10px; display:flex; align-items:center; justify-content:center; }
+.report-panel-sub { font-size:11px; color:var(--text2); margin-bottom:16px; }
+
+.dim-row { display:flex; align-items:center; gap:10px; margin-bottom:11px; }
+.dim-row-label { font-size:12px; color:#c3c7d6; width:130px; flex-shrink:0; }
+.dim-row-bar-wrap { flex:1; height:6px; background:var(--surface3); border-radius:4px; overflow:hidden; }
+.dim-row-bar { height:100%; border-radius:4px; background:var(--green); }
+.dim-row-val { font-family:var(--mono); font-size:11px; color:var(--text2); width:52px; text-align:right; }
+
+.priority-item { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-top:1px solid var(--border); }
+.priority-item:first-child { border-top:none; padding-top:0; }
+.priority-rank { width:22px; height:22px; border-radius:6px; background:var(--surface2); font-family:var(--mono); font-size:10.5px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.priority-text { flex:1; }
+.priority-title { font-size:12.5px; font-weight:600; }
+.priority-desc { font-size:11px; color:var(--text2); margin-top:2px; line-height:1.4; }
+.priority-score { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--red); flex-shrink:0; }
+
+.horizon-wrap { margin-top:22px; }
+.horizon-block { margin-bottom:16px; }
+.horizon-block-title { font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--blue); margin-bottom:8px; }
+.horizon-block-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.horizon-block-list li { font-size:12.5px; color:#c3c7d6; padding-left:16px; position:relative; line-height:1.5; }
+.horizon-block-list li::before { content:'→'; position:absolute; left:0; color:var(--blue); }
+
+.report-timeline-wrap { margin-top:26px; }
+.timeline-row { display:flex; align-items:center; gap:14px; padding:13px 16px; background:var(--surface); border:1px solid var(--border2); border-radius:10px; margin-bottom:8px; cursor:pointer; }
+.timeline-row-bar { width:3px; align-self:stretch; border-radius:2px; }
+.timeline-row-bar.tier-0, .timeline-row-bar.tier-1 { background:var(--green); }
+.timeline-row-bar.tier-2 { background:var(--amber); }
+.timeline-row-bar.tier-3, .timeline-row-bar.tier-4 { background:var(--red); }
+.timeline-row-idx { font-family:var(--mono); font-size:11px; color:var(--text3); width:20px; }
+.timeline-row-main { flex:1; }
+.timeline-row-title { font-size:13px; font-weight:600; }
+.timeline-row-sub { font-size:10.5px; color:var(--text2); font-family:var(--mono); margin-top:2px; }
+.timeline-row-opt { font-family:var(--mono); font-size:11px; background:var(--surface2); border:1px solid var(--border2); border-radius:5px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; }
+.timeline-row-score { font-family:var(--mono); font-size:14px; font-weight:700; width:34px; text-align:right; }
+.timeline-row-chev { color:var(--text3); transition:transform .15s; }
+.timeline-row-chev.open { transform:rotate(90deg); }
+
+/* ── Comparativa expandible: tú elegiste vs. lo más óptimo ── */
+.timeline-detail { display:none; padding:14px 16px; margin:-4px 0 8px; background:var(--surface2); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px; }
+.timeline-detail.open { display:block; }
+.tl-detail-match { font-size:12.5px; color:var(--green); }
+.tl-compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:640px) { .tl-compare-grid { grid-template-columns:1fr; } }
+.tl-compare-col { border-left:3px solid var(--red); padding-left:12px; }
+.tl-compare-col.optimal { border-left-color:var(--green); }
+.tl-compare-label { font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text2); margin-bottom:4px; }
+.tl-compare-col.optimal .tl-compare-label { color:var(--green); }
+.tl-compare-text { font-size:12.5px; color:var(--text); line-height:1.5; }
+.tl-detail-why { font-size:12px; color:#c3c7d6; line-height:1.5; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+
+.report-footer { display:flex; align-items:center; justify-content:space-between; padding:20px 32px; border-top:1px solid var(--border); }
+.report-footer-brand { }
+.report-footer-brand .name { font-family:'DM Serif Display', serif; font-size:15px; }
+.report-footer-brand .tag { font-family:var(--mono); font-size:9.5px; color:var(--text2); letter-spacing:.08em; margin-top:2px; }
+.report-footer button { padding:11px 20px; border-radius:9px; background:var(--blue); border:none; color:#fff; font-weight:600; font-size:13px; cursor:pointer; font-family:var(--font); }
+.report-secondary-actions { display:flex; gap:10px; justify-content:center; margin:18px 0 0; }
+.report-secondary-actions button { padding:8px 16px; border-radius:8px; background:transparent; border:1px solid var(--border2); color:var(--text2); font-size:12px; cursor:pointer; font-family:var(--font); }
+
+[data-admin-only] { display:none !important; }
+body.admin-mode [data-admin-only] { display:flex !important; }
+
+@media print {
+  .sidebar, .report-topbar-actions, .report-secondary-actions, #btn-toggle-admin, .confirm-bar { display:none !important; }
+  body { background:#fff; color:#111; }
+  .screen { display:block !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ INTRO / SETUP ══════════ -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-badge"><span></span> SIMULADOR EJECUTIVO DE CRISIS</div>
+  <h1 class="intro-title">CyberMaturity<br>Simulator</h1>
+  <p class="intro-subtitle">Pon a prueba la capacidad de decisión de tu organización frente a incidentes reales. Cada elección modifica la respuesta, la continuidad y la exposición financiera.</p>
+
+  <div class="intro-stats">
+    <div class="intro-stat"><span class="dot-ico">◈</span> <span id="stat-decisions">80</span> decisiones críticas</div>
+    <div class="intro-stat"><span class="dot-ico">◎</span> Ejercicio individual o facilitado</div>
+    <div class="intro-stat"><span class="dot-ico">◇</span> Preparación observable</div>
+  </div>
+
+  <div id="bank-loading-overlay" style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:rgba(26,86,219,0.08);border:1px solid rgba(26,86,219,0.2);border-radius:10px;margin-bottom:16px;width:100%;max-width:1040px">
+    <div style="width:18px;height:18px;border:2px solid var(--blue);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
+    <span style="font-size:13px;color:var(--blue)">Cargando escenarios…</span>
+  </div>
+  <div id="bank-error-banner" style="display:none;flex-direction:column;gap:10px;padding:16px 20px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;margin-bottom:16px;width:100%;max-width:1040px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">⚠️</span><span class="bank-err-msg" style="font-size:13px;color:#ef4444"></span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap" data-admin-only>
+      <input type="file" id="bank-file-input" accept=".json" multiple style="display:none" onchange="loadBankFromFile(event)">
+      <button onclick="document.getElementById('bank-file-input').click()" style="padding:6px 14px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#ef4444;font-size:12px;font-family:var(--mono);cursor:pointer">📂 Seleccionar JSON (admin)</button>
+    </div>
+  </div>
+
+  <div class="setup-grid">
+    <div class="setup-col">
+      <div class="setup-col-header">
+        <div class="setup-col-title"><span class="setup-col-badge">01</span> Selecciona el escenario</div>
+        <span class="setup-col-tag" id="scenarios-ready-tag">— escenarios listos</span>
+      </div>
+      <div class="scenario-row-list" id="scenarios-container"></div>
+    </div>
+
+    <div class="setup-col">
+      <div class="setup-col-header">
+        <div class="setup-col-title"><span class="setup-col-badge">02</span> Configura el ejercicio</div>
+      </div>
+      <div class="mode-row-list">
+        <div class="mode-row" id="mode-row-guiado" onclick="selectMode('guiado')">
+          <div class="mode-row-radio"></div>
+          <div class="mode-row-text">
+            <div class="mode-row-title">Modo guiado</div>
+            <div class="mode-row-desc">Retroalimentación inmediata, sin presión de tiempo.</div>
+          </div>
+        </div>
+        <div class="mode-row" id="mode-row-crisis" onclick="selectMode('crisis')">
+          <div class="mode-row-radio"></div>
+          <div class="mode-row-text">
+            <div class="mode-row-title">Modo crisis</div>
+            <div class="mode-row-desc">Cuenta regresiva y resultados reservados hasta el final.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-summary" id="setup-summary" style="display:none">
+        <div class="setup-summary-label">ESCENARIO SELECCIONADO</div>
+        <div class="setup-summary-name" id="summary-name"></div>
+        <div class="setup-summary-desc" id="summary-desc"></div>
+        <div class="setup-summary-stats">
+          <div class="setup-summary-stat"><div class="setup-summary-stat-val" id="summary-decisions">10</div><div class="setup-summary-stat-label">decisiones</div></div>
+          <div class="setup-summary-stat"><div class="setup-summary-stat-val" id="summary-tactics">8</div><div class="setup-summary-stat-label">tácticas</div></div>
+          <div class="setup-summary-stat"><div class="setup-summary-stat-val" id="summary-timer">Libre</div><div class="setup-summary-stat-label">por decisión</div></div>
+        </div>
+        <div class="setup-summary-refs" id="summary-refs"></div>
+      </div>
+
+      <div style="padding:0 18px 18px">
+        <button class="btn-primary" id="btn-start-game" onclick="startGame()" style="display:none;width:100%;justify-content:center">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3l8 5-8 5V3z" fill="white"/></svg>
+          Iniciar simulación
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;width:100%;max-width:1040px;margin-top:28px;font-size:11px;color:var(--text3);font-family:var(--mono)">
+    <span>PREPARACIÓN · RESPUESTA · RESILIENCIA</span>
+    <span>LA MADUREZ ORGANIZACIONAL REQUIERE VALIDACIÓN DE CAPACIDADES Y EVIDENCIAS.</span>
+  </div>
+
+  <button data-admin-only id="btn-toggle-admin" onclick="document.body.classList.toggle('admin-mode')" style="position:fixed;bottom:12px;right:12px;font-size:10px;font-family:var(--mono);background:var(--surface2);border:1px solid var(--border);color:var(--text3);padding:4px 8px;border-radius:6px;cursor:pointer">admin</button>
+</div>
+
+<!-- ══════════ GAME SCREEN ══════════ -->
+<div class="screen" id="screen-game">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">◆ CYBERWAR SIM <span id="scenario-idx-badge" style="color:var(--text2)">02</span></div>
+      <div style="margin:10px 0"><a href="#" onclick="backToScenarios();return false;" style="font-size:11.5px;color:var(--text2);text-decoration:none">← Escenarios</a></div>
+      <div class="progress-label"><span>PROGRESO</span><span id="progress-pct">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-label" style="margin-top:4px"><span id="progress-text">Decisión 1 de 10</span></div>
+    </div>
+
+    <div class="score-panel" style="padding:16px">
+      <div class="score-panel-title" style="display:flex;align-items:center;gap:5px">ÍNDICE DE PREPARACIÓN
+        <span class="help-icon">?<span class="help-tooltip">Promedio acumulado de la puntuación de cada decisión (0-100). Todas pesan igual; no es el promedio de las dimensiones. Este ejercicio mide desempeño observado, no madurez CMM.</span></span>
+      </div>
+      <div class="score-main">
+        <div class="score-number" id="readiness-index-display" style="color:var(--text)">—</div>
+        <div class="score-max">/ 100</div>
+      </div>
+      <div class="score-label">Desempeño observado durante este ejercicio.</div>
+    </div>
+
+    <div class="mode-panel">
+      <div class="score-panel-title">MODO</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+        <span style="font-size:16px" id="active-mode-icon">🎓</span>
+        <div>
+          <div style="font-size:13px;font-weight:700" id="active-mode-label">Guiado</div>
+          <div style="font-size:11px;color:var(--text2)" id="active-mode-hint">Aprendizaje inmediato</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="killchain">
+      <div class="killchain-title">TÁCTICAS MITRE ATT&amp;CK</div>
+      <div id="kc-items"></div>
+    </div>
+
+    <div class="decisions-log">
+      <div class="decisions-title" style="display:flex;justify-content:space-between">BITÁCORA <span id="decisions-count">0</span></div>
+      <div id="decisions-list"></div>
+    </div>
+  </aside>
+
+  <main class="game-main" id="game-main">
+    <div class="game-top-bar">
+      <div>
+        <div class="game-scenario-label">ESCENARIO ACTIVO</div>
+        <div class="game-scenario-name" id="active-scenario-name"></div>
+      </div>
+      <div class="timer-ring" id="timer-wrap">
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="var(--surface2)" stroke-width="3"/>
+          <circle id="timer-circle" cx="22" cy="22" r="18" fill="none" stroke="var(--blue)" stroke-width="3" stroke-dasharray="113" stroke-dashoffset="0" stroke-linecap="round"/>
+        </svg>
+        <div class="timer-num" id="timer-num">60</div>
+      </div>
+    </div>
+
+    <div class="state-banner" id="state-banner"><span class="dot"></span><span id="state-banner-text">Leyendo el contexto</span></div>
+
+    <div class="decision-label" id="q-number">DECISIÓN 01</div>
+    <div class="q-tags" id="q-tags" style="margin-bottom:16px"></div>
+
+    <div class="narrative-box" id="narrative-box">
+      <div class="narrative-time" id="narrative-time"></div>
+      <div class="narrative-text" id="narrative-text"></div>
+    </div>
+
+    <div class="decision-label" style="margin-top:22px">DECISIÓN REQUERIDA</div>
+    <div class="question-text" id="question-text" style="font-size:22px;font-weight:700;line-height:1.35;margin-bottom:20px"></div>
+
+    <div class="game-grid">
+      <div class="game-left">
+        <div id="options-grid"></div>
+
+        <div class="confirm-bar" id="confirm-bar">
+          <div class="confirm-bar-hint" id="confirm-bar-hint">Selecciona una alternativa y confirma tu decisión.</div>
+          <button id="btn-confirm" onclick="commitDecision()" disabled>Confirmar decisión</button>
+        </div>
+        <div class="confirm-bar" id="next-bar" style="display:none;justify-content:flex-end">
+          <button id="btn-next" onclick="nextQuestion()">Continuar →</button>
+        </div>
+      </div>
+
+      <div class="game-right">
+        <div class="eval-panel" id="feedback-box" style="display:none">
+          <div class="eval-panel-header">
+            <div class="eval-panel-icon" id="fb-icon">✓</div>
+            <div class="eval-panel-titles">
+              <div class="eval-panel-label">EVALUACIÓN DE LA DECISIÓN</div>
+              <div class="eval-panel-title" id="fb-title">Decisión óptima</div>
+            </div>
+            <div class="eval-panel-score" id="fb-score">100<span>/100</span></div>
+          </div>
+          <div class="eval-panel-text" id="fb-text"></div>
+          <div class="chip-grid" id="fb-chips"></div>
+          <div class="control-toggle" id="control-toggle" onclick="toggleControlPanel()"><span class="chev">▶</span> Implicaciones de control (regulatorio y evidencia)</div>
+          <div class="control-body" id="control-body"></div>
+          <div class="eval-panel-ref" id="fb-mitre"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════ RESULTS / REPORTE EJECUTIVO ══════════ -->
+<div class="screen" id="screen-results">
+  <div style="width:100%">
+    <div class="report-topbar">
+      <div class="sidebar-logo">◆ CYBERWAR SIM <span id="report-scenario-idx" style="color:var(--text2)">02</span></div>
+      <div class="report-topbar-actions">
+        <button onclick="window.print()">🖨 Imprimir / PDF</button>
+        <button class="primary" onclick="backToScenarios()">⇄ Cambiar escenario</button>
+      </div>
+    </div>
+
+    <div class="report-body">
+      <div class="report-eval-label" id="report-eval-label">EVALUACIÓN EJECUTIVA · —</div>
+
+      <div class="report-hero">
+        <div class="report-gauge-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface2)" stroke-width="9"/>
+            <circle id="report-gauge-circle" cx="60" cy="60" r="52" fill="none" stroke="var(--blue)" stroke-width="9" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327"/>
+          </svg>
+          <div class="report-gauge-num"><span class="n" id="report-gauge-num">0</span><span class="d">/100</span></div>
+        </div>
+        <div class="report-hero-text">
+          <div class="report-hero-title" id="report-headline">Escenario completado</div>
+          <div class="report-hero-sub" id="report-subheadline"></div>
+        </div>
+        <div class="report-stat-chips">
+          <div class="report-stat-chip"><div class="k">Óptimas</div><div class="v" id="stat-optimas">0 de 10</div></div>
+          <div class="report-stat-chip"><div class="k">Alto riesgo</div><div class="v" id="stat-altoriesgo">0</div></div>
+          <div class="report-stat-chip"><div class="k">Exposición estimada</div><div class="v" id="stat-exposicion">$0</div></div>
+        </div>
+      </div>
+
+      <div class="report-cmm-note">⚠ <span>Este resultado refleja preparación observada en el ejercicio. La madurez CMM debe evaluarse por separado mediante capacidades, procesos y evidencias.</span></div>
+
+      <div class="report-2col">
+        <div class="report-panel">
+          <div class="report-panel-title"><span class="report-panel-num">01</span> Preparación por dimensión
+            <span class="help-icon">?<span class="help-tooltip">Cada número es el promedio de esa dimensión en las decisiones tomadas, en una escala de 0 a 100. No es un porcentaje de aciertos: mide qué tanto tus decisiones fortalecieron o debilitaron esa capacidad específica.</span></span>
+          </div>
+          <div class="report-panel-sub">Capacidad demostrada durante las decisiones.</div>
+          <div id="dim-rows"></div>
+        </div>
+        <div class="report-panel">
+          <div class="report-panel-title"><span class="report-panel-num">02</span> Prioridades de mejora</div>
+          <div class="report-panel-sub">Acciones derivadas de las brechas observadas.</div>
+          <div id="priority-list"></div>
+        </div>
+      </div>
+
+      <div class="horizon-wrap">
+        <div class="horizon-block">
+          <div class="horizon-block-title">ACCIONES INMEDIATAS · 0–72 HORAS</div>
+          <ul class="horizon-block-list" id="rec-immediate"></ul>
+        </div>
+        <div class="horizon-block">
+          <div class="horizon-block-title">CORTO PLAZO · 30 DÍAS</div>
+          <ul class="horizon-block-list" id="rec-30"></ul>
+        </div>
+        <div class="horizon-block">
+          <div class="horizon-block-title">MEDIANO PLAZO · 90 DÍAS</div>
+          <ul class="horizon-block-list" id="rec-90"></ul>
+        </div>
+        <div class="horizon-block">
+          <div class="horizon-block-title">ESTRATÉGICO · 6–12 MESES</div>
+          <ul class="horizon-block-list" id="rec-strategic"></ul>
+        </div>
+      </div>
+
+      <div class="report-timeline-wrap">
+        <div class="horizon-block-title">LÍNEA DE DECISIONES</div>
+        <div id="report-timeline"></div>
+      </div>
+
+      <div class="report-panel" id="report-comparison-wrap" style="display:none;margin-top:16px">
+        <div class="report-panel-title">Comparación con ejercicios anteriores</div>
+        <div class="priority-desc" id="report-comparison" style="font-size:12.5px"></div>
+      </div>
+
+      <div class="report-secondary-actions">
+        <button onclick="restartGame()">↩ Reintentar escenario</button>
+      </div>
+    </div>
+
+    <div class="report-footer">
+      <div class="report-footer-brand">
+        <div class="name">CyberMaturity Simulator</div>
+        <div class="tag">PREPARACIÓN · RESPUESTA · RESILIENCIA</div>
+      </div>
+      <button onclick="restartGame()">↺ Repetir escenario</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PANEL DE REFERENCIA MITRE / REGULATORIA ══════════ -->
+<aside class="mitre-panel" id="mitre-panel">
+  <div class="mitre-panel-header">
+    <div class="mitre-panel-title">◈ REFERENCIA</div>
+    <button class="mitre-panel-close" onclick="closeMitrePanel()" title="Cerrar" type="button">✕</button>
+  </div>
+  <div class="mitre-panel-body" id="mitre-panel-body"></div>
+  <div class="mitre-panel-footer" id="mitre-panel-footer">Fuente: MITRE ATT&amp;CK® — attack.mitre.org</div>
+</aside>
+
+<script>
+// ═══════════════════════════════════════════════
+// SIMULADORPLUS v2 — MOTOR
+// Datos propios: Data/simuladorplus_*.json (no comparte nada con Simulador.html)
+// Puntuación 100% dirigida por Data/simuladorplus_scoring_config.json (no hardcodeada)
+// ═══════════════════════════════════════════════
+
+const IS_ADMIN = new URLSearchParams(location.search).get('admin') === '1';
+if (IS_ADMIN) document.body.classList.add('admin-mode');
+
+const DATA_FILES = {
+  questions: 'Data/simuladorplus_questions.json',
+  scenarios: 'Data/simuladorplus_scenarios.json',
+  scoring: 'Data/simuladorplus_scoring_config.json',
+  chains: 'Data/simuladorplus_attack_chains_catalog.json',
+  verticals: 'Data/simuladorplus_industry_verticals.json',
+  mitreEnterprise: 'Data/simuladorplus_mitre_enterprise_catalog.json',
+  mitreIcs: 'Data/simuladorplus_mitre_ics_catalog.json',
+  mitreMobile: 'Data/simuladorplus_mitre_mobile_catalog.json',
+};
+
+let QUESTIONS = [], SCENARIOS = [], CHAINS = {}, SCORING = null;
+let MITRE_CATALOGS = {}, TECH_LOOKUP = {}, TACTIC_LOOKUP = {};
+
+const RATING_TIER = { optimal: 0, adequate: 1, acceptable_with_risk: 2, high_risk: 3, critical: 4, timeout: 4 };
+const RATING_LABEL = {
+  optimal: 'Decisión óptima', adequate: 'Adecuada con reservas', acceptable_with_risk: 'Aceptable con riesgos',
+  high_risk: 'Alto riesgo', critical: 'Decisión crítica', timeout: 'Sin decisión',
+};
+const RATING_ICON = { optimal: '✓', adequate: '✓', acceptable_with_risk: '△', high_risk: '⚠', critical: '✕', timeout: '⏱' };
+
+let state = {
+  mode: null, scenario: null, scenarioQuestions: [], currentIdx: 0, currentQ: null,
+  decisions: [], dimensionTotals: {}, pendingOption: null, answered: false,
+  timerInterval: null, timerVal: 0, timerTotal: 0, timerPaused: false, questionStartTs: null,
+  scenarioIdx: '01', currentOptionsOrder: [],
+};
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ───────────────────────────────
+// CARGA DE DATOS
+// ───────────────────────────────
+async function loadAll() {
+  try {
+    const [q, s, sc, ch, mE, mI, mM] = await Promise.all([
+      fetch(DATA_FILES.questions).then(r => r.json()),
+      fetch(DATA_FILES.scenarios).then(r => r.json()),
+      fetch(DATA_FILES.scoring).then(r => r.json()),
+      fetch(DATA_FILES.chains).then(r => r.json()),
+      fetch(DATA_FILES.mitreEnterprise).then(r => r.json()),
+      fetch(DATA_FILES.mitreIcs).then(r => r.json()),
+      fetch(DATA_FILES.mitreMobile).then(r => r.json()),
+    ]);
+    QUESTIONS = q.questions; SCENARIOS = s.scenarios; SCORING = sc;
+    CHAINS = {}; (ch.chains || []).forEach(c => CHAINS[c.id] = c);
+    MITRE_CATALOGS = { enterprise: mE, ics: mI, mobile: mM };
+    buildMitreLookups();
+    document.getElementById('bank-loading-overlay').style.display = 'none';
+    document.getElementById('scenarios-ready-tag').textContent = `${SCENARIOS.length} escenarios listos`;
+    document.getElementById('stat-decisions').textContent = QUESTIONS.length;
+    renderScenarioCards();
+  } catch (err) {
+    document.getElementById('bank-loading-overlay').style.display = 'none';
+    document.getElementById('bank-error-banner').style.display = 'flex';
+    document.getElementById('bank-error-banner').querySelector('.bank-err-msg').textContent =
+      `No se pudo cargar el banco de escenarios: ${err.message}. Sirve la carpeta con python3 -m http.server y verifica Data/ junto a SimuladorPlus.html.`;
+  }
+}
+
+function buildMitreLookups() {
+  TECH_LOOKUP = {}; TACTIC_LOOKUP = {};
+  Object.entries(MITRE_CATALOGS).forEach(([matrixKey, cat]) => {
+    (cat.tactics || []).forEach(t => {
+      TACTIC_LOOKUP[matrixKey + '/' + t.id] = { name: t.name };
+      (t.techniques || []).forEach(tech => {
+        if (!TECH_LOOKUP[tech.id] || matrixKey === 'enterprise') {
+          TECH_LOOKUP[tech.id] = { name: tech.name, tacticId: t.id, tacticName: t.name, matrix: matrixKey };
+        }
+      });
+    });
+  });
+}
+
+function mitreVersionLabel(matrixKey) {
+  const cat = MITRE_CATALOGS[matrixKey || 'enterprise'];
+  if (!cat) return 'MITRE ATT&CK';
+  return cat.source || `MITRE ATT&CK ${cat.matrix_label || ''} v${cat.version || ''}`;
+}
+
+function loadBankFromFile(event) {
+  const files = Array.from(event.target.files || []);
+  Promise.all(files.map(f => f.text().then(t => ({ name: f.name, data: JSON.parse(t) }))))
+    .then(results => {
+      results.forEach(r => {
+        if (r.data.questions) QUESTIONS = r.data.questions;
+        if (r.data.scenarios) SCENARIOS = r.data.scenarios;
+        if (r.data.decisionPoints) SCORING = r.data;
+      });
+      renderScenarioCards();
+    });
+}
+
+// ───────────────────────────────
+// SETUP: ESCENARIO Y MODO
+// ───────────────────────────────
+function renderScenarioCards() {
+  const container = document.getElementById('scenarios-container');
+  container.innerHTML = '';
+  SCENARIOS.forEach(sc => {
+    const sevClass = /CRÍTICO/.test(sc.threat_level) ? 'critico' : /ALTO/.test(sc.threat_level) ? 'alto' : 'link';
+    const row = document.createElement('div');
+    row.className = 'scenario-row';
+    row.dataset.scenarioId = sc.id;
+    row.onclick = () => selectScenario(sc.id);
+    row.innerHTML = `
+      <div class="scenario-row-icon sev-${sevClass}"></div>
+      <div class="scenario-row-meta">
+        <div class="scenario-row-name">${sc.name}</div>
+        <div class="scenario-row-sub">${sc.sector || 'IFPE REGULADA CNBV'}</div>
+      </div>
+      <div class="scenario-row-badge sev-${sevClass}">${sc.threat_level || ''}</div>
+      <div class="scenario-row-chevron">›</div>`;
+    container.appendChild(row);
+  });
+}
+
+function selectScenario(scenarioId) {
+  document.querySelectorAll('.scenario-row').forEach(r => r.classList.toggle('selected', r.dataset.scenarioId === scenarioId));
+  state.scenario = SCENARIOS.find(s => s.id === scenarioId);
+  const sc = state.scenario;
+  const wrap = document.getElementById('setup-summary');
+  wrap.style.display = 'block';
+  document.getElementById('summary-name').textContent = sc.name;
+  document.getElementById('summary-desc').textContent = sc.description || '';
+  document.getElementById('summary-decisions').textContent = sc.question_ids.length;
+  const chain = CHAINS[sc.chain_id];
+  document.getElementById('summary-tactics').textContent = chain ? new Set(chain.etapas.map(e => e.tactic_id)).size : '—';
+  document.getElementById('summary-timer').textContent = state.mode === 'crisis' ? 'Con tiempo' : 'Libre';
+  const scQuestions = sc.question_ids.map(id => QUESTIONS.find(q => q.questionId === id)).filter(Boolean);
+  const refSet = new Set();
+  scQuestions.forEach(q => (q.references || []).forEach(r => refSet.add(r.id)));
+  document.getElementById('summary-refs').innerHTML = [...refSet].slice(0, 3).join(' · ') +
+    ' <span class="help-icon">?<span class="help-tooltip">Marcos y regulaciones citados en las decisiones de este escenario, además de MITRE ATT&CK.</span></span>';
+  maybeShowStart();
+}
+
+function selectMode(mode) {
+  state.mode = mode;
+  document.getElementById('mode-row-guiado').classList.toggle('selected', mode === 'guiado');
+  document.getElementById('mode-row-crisis').classList.toggle('selected', mode === 'crisis');
+  if (state.scenario) document.getElementById('summary-timer').textContent = mode === 'crisis' ? 'Con tiempo' : 'Libre';
+  maybeShowStart();
+}
+
+function maybeShowStart() {
+  const btn = document.getElementById('btn-start-game');
+  btn.style.display = (state.mode && state.scenario) ? 'flex' : 'none';
+}
+
+// ───────────────────────────────
+// INICIO DE PARTIDA
+// ───────────────────────────────
+function startGame() {
+  if (!state.mode || !state.scenario) return;
+  const sc = state.scenario;
+  state.scenarioQuestions = sc.question_ids.map(id => QUESTIONS.find(q => q.questionId === id)).filter(q => q && q.status === 'approved');
+  state.currentIdx = 0;
+  state.decisions = [];
+  state.dimensionTotals = {}; SCORING.dimensions.forEach(d => state.dimensionTotals[d] = []);
+
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  document.getElementById('active-scenario-name').textContent = sc.name;
+  document.getElementById('active-mode-icon').textContent = state.mode === 'guiado' ? '🎓' : '🚨';
+  document.getElementById('active-mode-label').textContent = state.mode === 'guiado' ? 'Guiado' : 'Crisis';
+  document.getElementById('active-mode-hint').textContent = state.mode === 'guiado' ? 'Aprendizaje inmediato' : 'Cuenta regresiva activa';
+  document.getElementById('readiness-index-display').textContent = '—';
+
+  renderAttackChain();
+  loadQuestion(0);
+}
+
+function renderAttackChain() {
+  const wrap = document.getElementById('kc-items');
+  wrap.innerHTML = '';
+  const chain = CHAINS[state.scenario.chain_id];
+  if (!chain) { wrap.innerHTML = '<div class="kc-item locked"><div class="kc-text">Sin cadena asociada</div></div>'; return; }
+  const seen = new Set();
+  chain.etapas.forEach((etapa) => {
+    if (seen.has(etapa.tactic_id)) return;
+    seen.add(etapa.tactic_id);
+    const div = document.createElement('div');
+    div.className = 'kc-item locked';
+    div.dataset.tacticId = etapa.tactic_id;
+    div.innerHTML = `<div class="kc-dot"></div><div class="kc-text">${etapa.titulo}</div><div class="kc-tag">${etapa.tactic_id}</div>`;
+    wrap.appendChild(div);
+  });
+}
+
+function highlightAttackChainTactic(tacticId) {
+  document.querySelectorAll('#kc-items .kc-item').forEach(el => {
+    el.classList.remove('active');
+    if (el.dataset.tacticId === tacticId) { el.classList.add('active'); el.classList.remove('locked'); }
+  });
+}
+
+// ───────────────────────────────
+// ESTADOS EXPLÍCITOS
+// ───────────────────────────────
+const STATE_LABELS = {
+  leyendo_contexto: 'Leyendo el contexto', tiempo_en_curso: 'Tiempo en curso', decision_seleccionada: 'Decisión seleccionada',
+  confirmacion_pendiente: 'Confirmación pendiente', decision_registrada: 'Decisión registrada',
+  consecuencia_generada: 'Consecuencia generada', siguiente_evento: 'Siguiente evento',
+};
+function setUiState(s) {
+  const banner = document.getElementById('state-banner');
+  banner.className = 'state-banner state-' + s.split('_')[0];
+  document.getElementById('state-banner-text').textContent = STATE_LABELS[s] || s;
+}
+
+// ───────────────────────────────
+// CARGA DE PREGUNTA
+// ───────────────────────────────
+function loadQuestion(idx) {
+  const q = state.scenarioQuestions[idx];
+  state.currentQ = q; state.answered = false; state.pendingOption = null; state.questionStartTs = Date.now();
+  setUiState('leyendo_contexto');
+
+  // Orden aleatorio por partida: evita que la posición delate la respuesta.
+  const letters = ['A', 'B', 'C', 'D'];
+  state.currentOptionsOrder = shuffleArray(q.options).map((opt, i) => ({ ...opt, displayId: letters[i] }));
+
+  document.getElementById('q-number').textContent = `DECISIÓN ${String(idx + 1).padStart(2, '0')}`;
+  document.getElementById('progress-text').textContent = `Decisión ${idx + 1} de ${state.scenarioQuestions.length}`;
+  const pct = Math.round((idx / state.scenarioQuestions.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+
+  document.getElementById('narrative-time').textContent = q.incidentPhase || '';
+  document.getElementById('narrative-text').innerHTML = q.context;
+  document.getElementById('question-text').textContent = q.question;
+
+  const tagsWrap = document.getElementById('q-tags'); tagsWrap.innerHTML = '';
+  if (q.mitreTacticId) {
+    const mTag = document.createElement('span');
+    mTag.className = 'q-tag mitre clickable';
+    mTag.textContent = `${q.mitreTacticId} / ${q.mitreTechniqueId}`;
+    mTag.dataset.tacticId = q.mitreTacticId; mTag.dataset.techniqueId = q.mitreTechniqueId; mTag.dataset.matrix = q.mitreMatrix;
+    mTag.onclick = () => openMitrePanel(mTag);
+    tagsWrap.appendChild(mTag);
+    highlightAttackChainTactic(q.mitreTacticId);
+  } else if (q.references && q.references.length) {
+    const rTag = document.createElement('span');
+    rTag.className = 'q-tag mitre clickable';
+    rTag.textContent = q.references[0].id;
+    rTag.dataset.reference = q.references.map(r => r.id).join(' · ');
+    rTag.onclick = () => openMitrePanel(rTag);
+    tagsWrap.appendChild(rTag);
+  }
+  const roleTag = document.createElement('span'); roleTag.className = 'q-tag role'; roleTag.textContent = q.participantRole;
+  tagsWrap.appendChild(roleTag);
+  const diffTag = document.createElement('span'); diffTag.className = 'q-tag diff'; diffTag.textContent = q.difficulty;
+  tagsWrap.appendChild(diffTag);
+  const sectorTag = document.createElement('span'); sectorTag.className = 'q-tag industry'; sectorTag.textContent = q.sector === 'manufactura_ot' ? 'OT' : 'General';
+  tagsWrap.appendChild(sectorTag);
+
+  const grid = document.getElementById('options-grid'); grid.innerHTML = '';
+  state.currentOptionsOrder.forEach(opt => {
+    const row = document.createElement('div');
+    row.className = 'opt-row';
+    row.dataset.optId = opt.displayId;
+    row.innerHTML = `<div class="opt-row-letter">${opt.displayId}</div><div class="opt-row-text">${opt.text}</div><div class="opt-row-radio"></div>`;
+    row.onclick = () => onOptionClick(opt);
+    grid.appendChild(row);
+  });
+
+  document.getElementById('feedback-box').style.display = 'none';
+  document.getElementById('control-body').classList.remove('open');
+  document.getElementById('control-toggle').classList.remove('open');
+  document.getElementById('confirm-bar').style.display = 'flex';
+  document.getElementById('next-bar').style.display = 'none';
+  document.getElementById('btn-confirm').disabled = true;
+  if (state.mode === 'crisis') {
+    document.getElementById('confirm-bar-hint').textContent = 'Modo crisis: la decisión se registra de inmediato al seleccionarla.';
+    document.getElementById('btn-confirm').style.display = 'none';
+  } else {
+    document.getElementById('confirm-bar-hint').textContent = 'Selecciona una alternativa y confirma tu decisión.';
+    document.getElementById('btn-confirm').style.display = 'inline-block';
+  }
+
+  document.getElementById('timer-wrap').classList.remove('armed');
+  clearInterval(state.timerInterval);
+  if (state.mode === 'crisis') {
+    document.getElementById('timer-wrap').style.visibility = 'visible';
+    updateTimerUI(q.timerSeconds, q.timerSeconds);
+    startTimer(q.timerSeconds);
+  } else {
+    document.getElementById('timer-wrap').style.visibility = 'hidden';
+  }
+}
+
+// ───────────────────────────────
+// TIMER (solo relevante en modo crisis)
+// ───────────────────────────────
+function startTimer(seconds) {
+  clearInterval(state.timerInterval);
+  state.timerVal = seconds; state.timerTotal = seconds;
+  document.getElementById('timer-wrap').classList.add('armed');
+  setUiState('tiempo_en_curso');
+  state.timerInterval = setInterval(() => {
+    state.timerVal--;
+    updateTimerUI(state.timerVal, state.timerTotal);
+    if (state.timerVal <= 0) { clearInterval(state.timerInterval); if (!state.answered) timeOut(); }
+  }, 1000);
+}
+
+function updateTimerUI(val, total) {
+  const circumference = 2 * Math.PI * 18;
+  const offset = circumference * (1 - val / (total || 60));
+  const circle = document.getElementById('timer-circle');
+  circle.style.strokeDashoffset = offset;
+  document.getElementById('timer-num').textContent = val;
+  if (val <= total * 0.15) { circle.style.stroke = 'var(--red)'; document.getElementById('timer-num').style.color = 'var(--red)'; }
+  else if (val <= total * 0.35) { circle.style.stroke = 'var(--amber)'; document.getElementById('timer-num').style.color = 'var(--amber)'; }
+  else { circle.style.stroke = 'var(--blue)'; document.getElementById('timer-num').style.color = 'var(--text)'; }
+}
+
+function timeOut() {
+  if (state.answered) return;
+  state.answered = true;
+  registerDecision(null, true);
+}
+
+// ───────────────────────────────
+// SELECCIÓN / CONFIRMACIÓN
+// ───────────────────────────────
+function onOptionClick(opt) {
+  if (state.answered) return;
+  state.pendingOption = opt;
+  document.querySelectorAll('.opt-row').forEach(r => r.classList.toggle('opt-picked', r.dataset.optId === opt.displayId));
+  setUiState('decision_seleccionada');
+
+  if (state.mode === 'crisis') {
+    lockAndRegister(opt); // presión máxima: sin confirmación intermedia
+  } else {
+    setUiState('confirmacion_pendiente');
+    document.getElementById('btn-confirm').disabled = false;
+    document.getElementById('confirm-bar-hint').textContent = 'Revisa tu selección y confirma para registrarla — no podrás cambiarla después.';
+  }
+}
+
+function commitDecision() {
+  if (!state.pendingOption || state.answered) return;
+  lockAndRegister(state.pendingOption);
+}
+
+function lockAndRegister(opt) {
+  clearInterval(state.timerInterval);
+  state.answered = true;
+  document.querySelectorAll('.opt-row').forEach(r => {
+    r.classList.add('opt-locked');
+    if (r.dataset.optId === opt.displayId) { r.classList.add('opt-picked', 'tier-' + RATING_TIER[opt.decisionRating]); }
+  });
+  document.getElementById('confirm-bar').style.display = 'none';
+  registerDecision(opt, false);
+}
+
+// ───────────────────────────────
+// REGISTRO Y PUNTUACIÓN (100% desde scoring_config.json)
+// ───────────────────────────────
+function registerDecision(opt, isTimeout) {
+  setUiState('decision_registrada');
+  const q = state.currentQ;
+  const elapsedSec = Math.round((Date.now() - state.questionStartTs) / 1000);
+  const rating = opt ? opt.decisionRating : 'timeout';
+
+  let points = SCORING.decisionPoints[rating] ?? 0;
+  // Bono por tiempo: solo modo crisis, solo si confirmó dentro del umbral, parametrizado en JSON.
+  let bonusApplied = false;
+  if (state.mode === 'crisis' && opt && SCORING.timeBonus && SCORING.timeBonus.enabledInMode === 'crisis') {
+    const threshold = q.timerSeconds * SCORING.timeBonus.thresholdFractionOfTimer;
+    if (elapsedSec <= threshold) { points += SCORING.timeBonus.bonusPoints; bonusApplied = true; }
+  }
+  points = Math.max(0, Math.min(100, points));
+
+  const dims = opt ? opt.scoreByDimension : Object.fromEntries(SCORING.dimensions.map(d => [d, -4]));
+  Object.entries(dims).forEach(([d, v]) => { if (state.dimensionTotals[d]) state.dimensionTotals[d].push(v); });
+
+  // Resolver el destino AHORA (una sola vez) para que el botón sepa si es la última decisión.
+  let nextIdx = state.currentIdx + 1;
+  if (opt && opt.nextQuestionId) {
+    const branchIdx = state.scenarioQuestions.findIndex(qq => qq.questionId === opt.nextQuestionId);
+    if (branchIdx !== -1) nextIdx = branchIdx;
+  }
+  const isLast = (nextIdx >= state.scenarioQuestions.length || nextIdx === -1);
+
+  const optimalOpt = q.options.find(o => o.decisionRating === 'optimal');
+
+  state.decisions.push({
+    questionId: q.questionId, question: q.question, optionId: opt ? opt.displayId : null,
+    optionText: opt ? opt.text : '(tiempo agotado — sin decisión)',
+    rating, ratingLabel: opt ? opt.decisionRatingLabel : RATING_LABEL.timeout,
+    points, bonusApplied, elapsedSec, timerSeconds: q.timerSeconds, isTimeout,
+    mitreTacticId: q.mitreTacticId, mitreTechniqueId: q.mitreTechniqueId, mitreMatrix: q.mitreMatrix,
+    chips: opt ? opt.chips : { timeWindowMinutes: 24, assetsDelta: -17, operationalState: 'Interrupción probable', financialImpactMXN: 520000 },
+    controlImplications: opt ? opt.controlImplications : { regulatory: 'Exposición regulatoria crítica por ausencia de respuesta documentada.', evidence: 'Riesgo elevado de pérdida de evidencia volátil por falta de acción.' },
+    nextIdx, isLast,
+    wasOptimal: rating === 'optimal',
+    optimalText: optimalOpt ? optimalOpt.text : null,
+    optimalExplanation: q.explanation,
+  });
+
+  addDecisionLogEntry(state.decisions.length, opt ? `${opt.displayId}. ${opt.text}` : 'Tiempo agotado', rating);
+  updateReadinessIndex();
+
+  if (state.mode === 'guiado') {
+    setUiState('consecuencia_generada');
+    showFeedback();
+  } else {
+    setUiState('siguiente_evento');
+    setTimeout(nextQuestion, 300);
+  }
+}
+
+function updateReadinessIndex() {
+  const sum = state.decisions.reduce((a, d) => a + d.points, 0);
+  const idx = state.decisions.length ? Math.round(sum / state.decisions.length) : null;
+  document.getElementById('readiness-index-display').textContent = idx === null ? '—' : idx;
+}
+
+// ───────────────────────────────
+// FEEDBACK (panel de evaluación — solo modo guiado en vivo)
+// ───────────────────────────────
+function showFeedback() {
+  const q = state.currentQ;
+  const d = state.decisions[state.decisions.length - 1];
+  const tier = RATING_TIER[d.rating];
+  const box = document.getElementById('feedback-box');
+  box.className = 'eval-panel tier-' + tier;
+  box.style.display = 'block';
+
+  document.getElementById('fb-icon').textContent = RATING_ICON[d.rating] || '•';
+  document.getElementById('fb-title').textContent = d.ratingLabel;
+  document.getElementById('fb-score').innerHTML = `${d.points}<span>/100</span>`;
+  document.getElementById('fb-text').textContent = d.optionId ? q.explanation : 'No se registró una decisión a tiempo. En un incidente real, la inacción tiene un costo equivalente al de una decisión crítica.';
+
+  const c = d.chips;
+  const timeTxt = c.timeWindowMinutes < 0 ? `${Math.abs(c.timeWindowMinutes)} min recuperados` : `+${c.timeWindowMinutes} min de exposición`;
+  const assetsTxt = c.assetsDelta > 0 ? `${c.assetsDelta} protegidos` : `${Math.abs(c.assetsDelta)} en riesgo`;
+  const finTxt = c.financialImpactMXN < 0 ? `−$${Math.abs(c.financialImpactMXN).toLocaleString('es-MX')} MXN` : `+$${c.financialImpactMXN.toLocaleString('es-MX')} MXN`;
+  document.getElementById('fb-chips').innerHTML = `
+    <div class="chip"><div class="chip-label">Ventana de respuesta</div><div class="chip-val ${c.timeWindowMinutes < 0 ? 'pos' : 'neg'}">${timeTxt}</div></div>
+    <div class="chip"><div class="chip-label">Alcance proyectado</div><div class="chip-val ${c.assetsDelta > 0 ? 'pos' : 'neg'}">${assetsTxt}</div></div>
+    <div class="chip"><div class="chip-label">Operación</div><div class="chip-val ${tier <= 1 ? 'pos' : tier >= 3 ? 'neg' : ''}">${c.operationalState}</div></div>
+    <div class="chip"><div class="chip-label">Impacto estimado</div><div class="chip-val ${c.financialImpactMXN < 0 ? 'pos' : 'neg'}">${finTxt}</div></div>
+  `;
+
+  document.getElementById('control-body').innerHTML = `
+    <div class="control-row"><strong>Regulatorio:</strong> ${d.controlImplications.regulatory}</div>
+    <div class="control-row"><strong>Evidencia:</strong> ${d.controlImplications.evidence}</div>`;
+
+  const refEl = document.getElementById('fb-mitre');
+  let refText = q.mitreTacticId ? `${q.mitreTacticId}/${q.mitreTechniqueId}` : (q.references[0] ? q.references[0].id : 'sin referencia');
+  refEl.innerHTML = `<span class="help-icon">◈</span> Referencia: ${refText} · Los impactos financieros son estimaciones demostrativas, no un análisis FAIR completo.`;
+
+  document.getElementById('btn-next').textContent = d.isLast ? 'Finalizar simulación →' : 'Continuar →';
+  document.getElementById('next-bar').style.display = 'flex';
+}
+
+function toggleControlPanel() {
+  document.getElementById('control-toggle').classList.toggle('open');
+  document.getElementById('control-body').classList.toggle('open');
+}
+
+function toggleTimelineDetail(rowId) {
+  document.getElementById(rowId).classList.toggle('open');
+  document.getElementById(rowId + '-chev').classList.toggle('open');
+}
+
+// ───────────────────────────────
+// PANEL DE REFERENCIA
+// ───────────────────────────────
+function openMitrePanel(el) {
+  const tacticId = el.dataset.tacticId, techId = el.dataset.techniqueId, refText = el.dataset.reference;
+  const body = document.getElementById('mitre-panel-body');
+  let html = '';
+  if (tacticId && techId) {
+    const tech = TECH_LOOKUP[techId];
+    html = `
+      <div class="mitre-ref-block"><div class="mitre-ref-label">TÁCTICA · ${tacticId}</div><div class="mitre-ref-name">${tech ? tech.tacticName : tacticId}</div>
+      <a class="mitre-ref-link" href="https://attack.mitre.org/tactics/${tacticId}/" target="_blank" rel="noopener">Ver táctica ↗</a></div>
+      <div class="mitre-ref-block"><div class="mitre-ref-label">TÉCNICA · ${techId}</div><div class="mitre-ref-name">${tech ? tech.name : ''}</div>
+      <a class="mitre-ref-link" href="https://attack.mitre.org/techniques/${techId.replace('.', '/')}/" target="_blank" rel="noopener">Ver técnica ↗</a></div>
+      <div style="font-size:10.5px;color:var(--text3);margin-top:8px">${mitreVersionLabel(tech ? tech.matrix : 'enterprise')}</div>`;
+  } else {
+    html = `<div class="mitre-ref-block"><div class="mitre-ref-label">REFERENCIA NORMATIVA / MARCO</div><div class="mitre-ref-name">${refText || 'Sin referencia'}</div>
+      <div class="mitre-ref-desc">Cita un marco regulatorio o metodológico, no una técnica MITRE ATT&CK.</div></div>`;
+  }
+  body.innerHTML = html;
+  document.getElementById('mitre-panel').classList.add('open');
+}
+function closeMitrePanel() { document.getElementById('mitre-panel').classList.remove('open'); }
+
+function addDecisionLogEntry(n, text, rating) {
+  const list = document.getElementById('decisions-list');
+  const tier = RATING_TIER[rating];
+  const cls = tier <= 1 ? 'pos' : tier === 2 ? 'neutral' : 'neg';
+  const row = document.createElement('div');
+  row.className = 'decision-log-row';
+  row.innerHTML = `<span class="decision-log-dot ${cls}"></span><span class="decision-log-text">P${n} · ${RATING_LABEL[rating]}</span>`;
+  list.appendChild(row);
+  document.getElementById('decisions-count').textContent = state.decisions.length;
+}
+
+// ───────────────────────────────
+// SIGUIENTE PREGUNTA
+// ───────────────────────────────
+function nextQuestion() {
+  const d = state.decisions[state.decisions.length - 1];
+  if (d.isLast) { showResults(); return; }
+  state.currentIdx = d.nextIdx;
+  loadQuestion(d.nextIdx);
+}
+
+// ───────────────────────────────
+// REPORTE EJECUTIVO
+// ───────────────────────────────
+function dimAvgToScore100(avg) { return Math.round(((avg + 6) / 12) * 100); }
+
+function showResults() {
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-results').classList.add('active');
+
+  const finalIndex = state.decisions.length ? Math.round(state.decisions.reduce((a, d) => a + d.points, 0) / state.decisions.length) : 0;
+  document.getElementById('report-eval-label').textContent = `EVALUACIÓN EJECUTIVA · ${state.scenario.name.toUpperCase()}`;
+  document.getElementById('report-gauge-num').textContent = finalIndex;
+  const circumference = 2 * Math.PI * 52;
+  document.getElementById('report-gauge-circle').style.strokeDashoffset = circumference * (1 - finalIndex / 100);
+
+  let headline, sub;
+  if (finalIndex >= 85) { headline = 'Respuesta ejemplar'; sub = 'Las decisiones demostraron un nivel de preparación consistentemente alto.'; }
+  else if (finalIndex >= 65) { headline = 'Respuesta sólida con brechas'; sub = 'Las decisiones principales fueron oportunas, aunque persisten exposiciones que deben atenderse.'; }
+  else if (finalIndex >= 40) { headline = 'Respuesta con vulnerabilidades relevantes'; sub = 'Varias decisiones incrementaron el riesgo operativo, financiero o regulatorio.'; }
+  else { headline = 'Respuesta crítica'; sub = 'El patrón de decisiones expuso a la organización a un riesgo severo.'; }
+  document.getElementById('report-headline').textContent = headline;
+  document.getElementById('report-subheadline').textContent = sub;
+
+  const optimasCount = state.decisions.filter(d => RATING_TIER[d.rating] <= 1).length;
+  const altoRiesgoCount = state.decisions.filter(d => RATING_TIER[d.rating] >= 3).length;
+  const totalExposure = state.decisions.reduce((a, d) => a + Math.max(0, d.chips.financialImpactMXN), 0);
+  document.getElementById('stat-optimas').textContent = `${optimasCount} de ${state.decisions.length}`;
+  document.getElementById('stat-altoriesgo').textContent = altoRiesgoCount;
+  document.getElementById('stat-exposicion').textContent = totalExposure >= 1000000
+    ? `$${(totalExposure / 1000000).toFixed(1)} M` : `$${Math.round(totalExposure / 1000)} mil`;
+
+  // Dimensiones
+  const dimAvgs = Object.entries(state.dimensionTotals).map(([d, arr]) => [d, arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0]);
+  const dimRows = document.getElementById('dim-rows'); dimRows.innerHTML = '';
+  dimAvgs.forEach(([d, avg]) => {
+    const score = dimAvgToScore100(avg);
+    dimRows.innerHTML += `<div class="dim-row"><div class="dim-row-label">${SCORING.dimensionLabels[d]}</div>
+      <div class="dim-row-bar-wrap"><div class="dim-row-bar" style="width:${Math.max(4, score)}%;background:${score >= 70 ? 'var(--green)' : score >= 45 ? 'var(--amber)' : 'var(--red)'}"></div></div>
+      <div class="dim-row-val">${score}<span style="color:var(--text3)">/100</span></div></div>`;
+  });
+
+  // Prioridades de mejora (3 dimensiones más débiles)
+  const sorted = [...dimAvgs].sort((a, b) => dimAvgToScore100(a[1]) - dimAvgToScore100(b[1]));
+  const worst3 = sorted.slice(0, 3);
+  const priorityDesc = {
+    gobierno: 'Formalizar y ensayar la cadena de mando del comité de crisis.',
+    contencion: 'Documentar runbooks de aislamiento por tipo de activo (endpoint, red, OT).',
+    continuidad: 'Definir RTO/RPO explícitos para los servicios críticos afectados en este escenario.',
+    evidencia: 'Capacitar al primer respondiente en preservación de evidencia volátil antes de contener.',
+    comunicacion: 'Preparar plantillas de comunicación regulatoria y a clientes pre-aprobadas por Legal.',
+    cumplimiento: 'Revisar los plazos de notificación CNBV/Banxico/CONDUSEF aplicables a este tipo de incidente.',
+  };
+  const priTitle = { gobierno: 'Fortalecer gobierno', contencion: 'Fortalecer contención', continuidad: 'Fortalecer continuidad', evidencia: 'Fortalecer evidencia', comunicacion: 'Fortalecer comunicación', cumplimiento: 'Fortalecer cumplimiento' };
+  const priList = document.getElementById('priority-list'); priList.innerHTML = '';
+  worst3.forEach(([d, avg], i) => {
+    priList.innerHTML += `<div class="priority-item"><div class="priority-rank">0${i + 1}</div>
+      <div class="priority-text"><div class="priority-title">${priTitle[d]}</div><div class="priority-desc">${priorityDesc[d]}</div></div>
+      <div class="priority-score">${dimAvgToScore100(avg)}<span style="color:var(--text3);font-weight:400">/100</span></div></div>`;
+  });
+
+  // Horizontes (combinan las 3 más débiles + una estratégica)
+  document.getElementById('rec-immediate').innerHTML = worst3.slice(0, 1).map(([d]) => `<li>${priorityDesc[d]}</li>`).join('');
+  document.getElementById('rec-30').innerHTML = worst3.slice(1, 2).map(([d]) => `<li>${priorityDesc[d]}</li>`).join('');
+  document.getElementById('rec-90').innerHTML = worst3.slice(2, 3).map(([d]) => `<li>${priorityDesc[d]}</li>`).join('');
+  document.getElementById('rec-strategic').innerHTML = `<li>Incorporar los hallazgos de este ejercicio al roadmap de mejora del assessment GRC (módulo CyberMaturity Platform).</li>`;
+
+  // Timeline de decisiones
+  const tl = document.getElementById('report-timeline'); tl.innerHTML = '';
+  state.decisions.forEach((d, i) => {
+    const tier = RATING_TIER[d.rating];
+    const tacticName = d.mitreTacticId ? (TACTIC_LOOKUP[d.mitreMatrix + '/' + d.mitreTacticId]?.name || d.mitreTacticId) : 'Marco de referencia';
+    const rowId = 'tl-detail-' + i;
+    const compareHtml = d.wasOptimal
+      ? `<div class="tl-detail-match">✓ Tu elección coincidió con la opción óptima de esta decisión.</div>`
+      : `<div class="tl-compare-grid">
+           <div class="tl-compare-col">
+             <div class="tl-compare-label">Tú elegiste</div>
+             <div class="tl-compare-text">${d.optionText}</div>
+           </div>
+           <div class="tl-compare-col optimal">
+             <div class="tl-compare-label">Lo más óptimo</div>
+             <div class="tl-compare-text">${d.optimalText || '—'}</div>
+           </div>
+         </div>
+         <div class="tl-detail-why">${d.optimalExplanation || ''}</div>`;
+    tl.innerHTML += `<div class="timeline-row" onclick="toggleTimelineDetail('${rowId}')">
+      <div class="timeline-row-bar tier-${tier}"></div>
+      <div class="timeline-row-idx">${String(i + 1).padStart(2, '0')}</div>
+      <div class="timeline-row-main"><div class="timeline-row-title">${d.ratingLabel}</div>
+        <div class="timeline-row-sub">${tacticName}${d.mitreTacticId ? ' · ' + d.mitreTacticId : ''}</div></div>
+      <div class="timeline-row-opt">${d.optionId || '—'}</div>
+      <div class="timeline-row-score">${d.points}</div>
+      <div class="timeline-row-chev" id="${rowId}-chev">›</div>
+    </div>
+    <div class="timeline-detail" id="${rowId}">${compareHtml}</div>`;
+  });
+
+  saveRunToHistory(finalIndex);
+  renderComparison(finalIndex);
+}
+
+function saveRunToHistory(finalIndex) {
+  let history = [];
+  try { history = JSON.parse(localStorage.getItem('simuladorplus_history') || '[]'); } catch (e) {}
+  history.push({ scenarioId: state.scenario.id, mode: state.mode, score: finalIndex, date: new Date().toISOString() });
+  history = history.slice(-30);
+  try { localStorage.setItem('simuladorplus_history', JSON.stringify(history)); } catch (e) {}
+}
+
+function renderComparison(finalIndex) {
+  let history = [];
+  try { history = JSON.parse(localStorage.getItem('simuladorplus_history') || '[]'); } catch (e) {}
+  const prior = history.filter(h => h.scenarioId === state.scenario.id).slice(0, -1);
+  const wrap = document.getElementById('report-comparison-wrap');
+  if (!prior.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  const avgPrior = Math.round(prior.reduce((a, b) => a + b.score, 0) / prior.length);
+  const diff = finalIndex - avgPrior;
+  document.getElementById('report-comparison').textContent =
+    `${prior.length} ejercicio(s) previo(s) de este escenario — índice promedio anterior: ${avgPrior}. ` +
+    (diff >= 0 ? `Mejoraste ${diff} puntos respecto al promedio anterior.` : `${Math.abs(diff)} puntos por debajo del promedio anterior.`);
+}
+
+function restartGame() {
+  document.getElementById('screen-results').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+  startGame();
+}
+
+function backToScenarios() {
+  document.getElementById('screen-results').classList.remove('active');
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-intro').classList.add('active');
+  state.mode = null; state.scenario = null;
+  document.getElementById('mode-row-guiado').classList.remove('selected');
+  document.getElementById('mode-row-crisis').classList.remove('selected');
+  document.querySelectorAll('.scenario-row').forEach(r => r.classList.remove('selected'));
+  document.getElementById('setup-summary').style.display = 'none';
+  document.getElementById('btn-start-game').style.display = 'none';
+}
+
+loadAll();
+</script>
+</body>
+</html>

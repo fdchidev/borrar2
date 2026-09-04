@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "verticals": [
+    {
+      "id": "ifpe_cnbv",
+      "label": "IFPE regulada CNBV",
+      "framework_refs": [
+        "CNBV-IFPE",
+        "LRITF",
+        "BANXICO"
+      ]
+    },
+    {
+      "id": "manufactura_ot",
+      "label": "Manufactura / OT",
+      "framework_refs": [
+        "ISO 27001",
+        "IEC 62443 (pendiente de añadir al catálogo de frameworks)"
+      ]
+    },
+    {
+      "id": "banca",
+      "label": "Banca",
+      "framework_refs": [
+        "CNBV-AUTH"
+      ]
+    },
+    {
+      "id": "general",
+      "label": "General",
+      "framework_refs": []
+    }
+  ]
+}

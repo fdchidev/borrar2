@@ -1,0 +1,399 @@
+{
+  "version": "1.0.0",
+  "matrix": "ics",
+  "matrix_label": "ICS (OT / Proceso físico)",
+  "source": "MITRE ATT&CK for ICS — subconjunto curado, IDs verificados contra attack.mitre.org",
+  "last_updated": "2026-09-01",
+  "note": "Subconjunto curado (no las 79 técnicas completas). IDs y nombres verificados contra el sitio oficial de MITRE al momento de construir este catálogo — recomendable re-verificar periódicamente contra attack.mitre.org/matrices/ics antes de uso en producción regulada.",
+  "tactics": [
+    {
+      "id": "TA0108",
+      "name": "Acceso inicial a OT",
+      "short": "Initial Access",
+      "techniques": [
+        {
+          "id": "T0817",
+          "name": "Drive-by Compromise",
+          "tactic_goal": "Comprometer un equipo de ingeniería/HMI al visitar un sitio web durante navegación normal."
+        },
+        {
+          "id": "T0819",
+          "name": "Explotación de aplicación expuesta a internet",
+          "tactic_goal": "Explotar software de gestión/visibilidad OT expuesto a internet."
+        },
+        {
+          "id": "T0822",
+          "name": "Servicios remotos externos",
+          "tactic_goal": "Usar VPN/Citrix u otros accesos remotos legítimos como punto de entrada."
+        },
+        {
+          "id": "T0883",
+          "name": "Dispositivo accesible desde internet",
+          "tactic_goal": "Alcanzar un dispositivo OT expuesto directo a internet, sin necesidad de explotar una vulnerabilidad."
+        },
+        {
+          "id": "T1694.001",
+          "name": "Credenciales por defecto",
+          "tactic_goal": "Usar credenciales de fábrica no cambiadas en PLC/HMI."
+        },
+        {
+          "id": "T0865",
+          "name": "Spearphishing con adjunto",
+          "tactic_goal": "Correo dirigido con adjunto malicioso hacia personal de ingeniería/planta."
+        },
+        {
+          "id": "T0862",
+          "name": "Compromiso de cadena de suministro",
+          "tactic_goal": "Comprometer software/hardware de un proveedor OT antes de que llegue a la planta."
+        }
+      ]
+    },
+    {
+      "id": "TA0104",
+      "name": "Ejecución",
+      "short": "Execution",
+      "techniques": [
+        {
+          "id": "T0807",
+          "name": "Interfaz de línea de comandos",
+          "tactic_goal": "Ejecutar comandos directamente en estaciones de ingeniería/servidores OT."
+        },
+        {
+          "id": "T0853",
+          "name": "Scripting",
+          "tactic_goal": "Ejecutar scripts para automatizar acciones maliciosas en el entorno OT."
+        },
+        {
+          "id": "T0863",
+          "name": "Ejecución por el usuario",
+          "tactic_goal": "Depender de que un operador abra un archivo o adjunto malicioso."
+        },
+        {
+          "id": "T0871",
+          "name": "Ejecución vía API",
+          "tactic_goal": "Usar APIs de comunicación entre software de control y hardware para ejecutar funciones."
+        },
+        {
+          "id": "T0823",
+          "name": "Interfaz gráfica",
+          "tactic_goal": "Acceder vía GUI a un HMI/estación para interactuar como si fuera un operador."
+        }
+      ]
+    },
+    {
+      "id": "TA0110",
+      "name": "Persistencia en OT",
+      "short": "Persistence",
+      "techniques": [
+        {
+          "id": "T0889",
+          "name": "Modificar programa",
+          "tactic_goal": "Alterar el programa de un PLC para mantener acceso o cambiar su comportamiento."
+        },
+        {
+          "id": "T1693.002",
+          "name": "Firmware de módulo",
+          "tactic_goal": "Instalar firmware malicioso en un módulo de hardware del sistema de control."
+        },
+        {
+          "id": "T0859",
+          "name": "Cuentas válidas",
+          "tactic_goal": "Usar credenciales robadas o por defecto para mantener acceso persistente."
+        },
+        {
+          "id": "T0821",
+          "name": "Modificar tareas del controlador",
+          "tactic_goal": "Alterar la asignación de tareas de un controlador para ejecutar código propio."
+        },
+        {
+          "id": "T0873",
+          "name": "Infección de archivo de proyecto",
+          "tactic_goal": "Infectar archivos de proyecto de ingeniería (ej. Siemens Step7) que luego se descargan al PLC."
+        }
+      ]
+    },
+    {
+      "id": "TA0111",
+      "name": "Escalamiento de privilegios",
+      "short": "Privilege Escalation",
+      "techniques": [
+        {
+          "id": "T0890",
+          "name": "Explotación para escalamiento de privilegios",
+          "tactic_goal": "Explotar una vulnerabilidad para obtener privilegios más altos en el entorno OT."
+        },
+        {
+          "id": "T0874",
+          "name": "Hooking",
+          "tactic_goal": "Interceptar llamadas a funciones de API para elevar privilegios o control."
+        },
+        {
+          "id": "T0858",
+          "name": "Cambiar modo de operación",
+          "tactic_goal": "Cambiar el modo del controlador (run/prog/remote) para habilitar funciones de ingeniería no autorizadas."
+        }
+      ]
+    },
+    {
+      "id": "TA0103",
+      "name": "Evasión",
+      "short": "Evasion",
+      "techniques": [
+        {
+          "id": "T0872",
+          "name": "Eliminación de indicadores en el host",
+          "tactic_goal": "Borrar rastros de la actividad maliciosa en estaciones OT."
+        },
+        {
+          "id": "T0851",
+          "name": "Rootkit",
+          "tactic_goal": "Ocultar la presencia de malware a nivel de sistema operativo."
+        },
+        {
+          "id": "T0849",
+          "name": "Masquerading",
+          "tactic_goal": "Disfrazar un archivo/ejecutable malicioso como uno legítimo del vendor."
+        },
+        {
+          "id": "T0820",
+          "name": "Explotación para evasión",
+          "tactic_goal": "Explotar una vulnerabilidad para desactivar o rodear una defensa."
+        }
+      ]
+    },
+    {
+      "id": "TA0102",
+      "name": "Descubrimiento",
+      "short": "Discovery",
+      "techniques": [
+        {
+          "id": "T0846",
+          "name": "Descubrimiento de sistemas remotos",
+          "tactic_goal": "Listar hosts/IPs en la red OT para planear movimiento lateral."
+        },
+        {
+          "id": "T0888",
+          "name": "Descubrimiento de información de sistemas remotos",
+          "tactic_goal": "Identificar marca/modelo/rol de dispositivos OT para decidir el objetivo."
+        },
+        {
+          "id": "T0840",
+          "name": "Enumeración de conexiones de red",
+          "tactic_goal": "Mapear patrones de comunicación entre dispositivos OT."
+        },
+        {
+          "id": "T0801",
+          "name": "Monitorear estado del proceso",
+          "tactic_goal": "Observar el estado del proceso físico para planear el momento del impacto."
+        },
+        {
+          "id": "T0861",
+          "name": "Identificación de puntos y tags",
+          "tactic_goal": "Entender qué representa cada variable/tag del proceso antes de manipularlo."
+        }
+      ]
+    },
+    {
+      "id": "TA0109",
+      "name": "Movimiento lateral IT→OT",
+      "short": "Lateral Movement",
+      "techniques": [
+        {
+          "id": "T0886",
+          "name": "Servicios remotos",
+          "tactic_goal": "Usar RDP/SMB/SSH para moverse desde la red IT comprometida hacia la red OT."
+        },
+        {
+          "id": "T0866",
+          "name": "Explotación de servicios remotos",
+          "tactic_goal": "Explotar una vulnerabilidad en un servicio remoto para pivotar hacia OT."
+        },
+        {
+          "id": "T0867",
+          "name": "Transferencia lateral de herramientas",
+          "tactic_goal": "Copiar herramientas maliciosas de un sistema a otro dentro del entorno."
+        },
+        {
+          "id": "T0847",
+          "name": "Replicación por medios removibles",
+          "tactic_goal": "Usar USB para saltar el air-gap hacia dispositivos aislados de la red."
+        }
+      ]
+    },
+    {
+      "id": "TA0100",
+      "name": "Recolección",
+      "short": "Collection",
+      "techniques": [
+        {
+          "id": "T0802",
+          "name": "Recolección automatizada",
+          "tactic_goal": "Recolectar información del entorno OT usando herramientas/protocolos nativos como OPC."
+        },
+        {
+          "id": "T0811",
+          "name": "Datos de repositorios de información",
+          "tactic_goal": "Extraer diagramas/esquemáticos del sistema de control desde bases de datos."
+        },
+        {
+          "id": "T0893",
+          "name": "Datos del sistema local",
+          "tactic_goal": "Extraer configuraciones o datos locales de una estación de ingeniería."
+        },
+        {
+          "id": "T0852",
+          "name": "Captura de pantalla",
+          "tactic_goal": "Capturar pantallas de HMI para entender el proceso y planear el ataque."
+        },
+        {
+          "id": "T0842",
+          "name": "Sniffing de red",
+          "tactic_goal": "Capturar tráfico de red OT para entender protocolos y comandos."
+        }
+      ]
+    },
+    {
+      "id": "TA0101",
+      "name": "Comando y control",
+      "short": "Command and Control",
+      "techniques": [
+        {
+          "id": "T0885",
+          "name": "Puerto comúnmente usado",
+          "tactic_goal": "Comunicarse por puertos habituales para mezclarse con tráfico legítimo."
+        },
+        {
+          "id": "T0884",
+          "name": "Proxy de conexión",
+          "tactic_goal": "Usar un proxy intermedio para dirigir tráfico de C2."
+        },
+        {
+          "id": "T0869",
+          "name": "Protocolo de capa de aplicación estándar",
+          "tactic_goal": "Usar protocolos OT (Modbus, DNP3, OPC) para disfrazar C2 como tráfico normal."
+        },
+        {
+          "id": "T0848",
+          "name": "Master falso (Rogue Master)",
+          "tactic_goal": "Suplantar al servidor de control para enviar comandos legítimos-pero-maliciosos a los dispositivos."
+        },
+        {
+          "id": "T0830",
+          "name": "Adversario en el medio",
+          "tactic_goal": "Interceptar y modificar tráfico de red en tiempo real entre dispositivos OT."
+        }
+      ]
+    },
+    {
+      "id": "TA0107",
+      "name": "Inhibir función de respuesta",
+      "short": "Inhibit Response Function",
+      "techniques": [
+        {
+          "id": "T0800",
+          "name": "Activar modo de actualización de firmware",
+          "tactic_goal": "Forzar el modo de actualización para detener funciones de respuesta del dispositivo."
+        },
+        {
+          "id": "T0878",
+          "name": "Supresión de alarmas",
+          "tactic_goal": "Evitar que las alarmas notifiquen al operador sobre condiciones críticas."
+        },
+        {
+          "id": "T0814",
+          "name": "Denegación de servicio",
+          "tactic_goal": "Saturar un dispositivo para volverlo inoperante y sin capacidad de respuesta."
+        },
+        {
+          "id": "T0838",
+          "name": "Modificar configuración de alarmas",
+          "tactic_goal": "Alterar umbrales de alarma para que no se disparen ante una condición peligrosa."
+        },
+        {
+          "id": "T0837",
+          "name": "Pérdida de protección",
+          "tactic_goal": "Comprometer funciones de sistemas de protección diseñados para reaccionar ante fallas."
+        }
+      ]
+    },
+    {
+      "id": "TA0106",
+      "name": "Afectar control de proceso",
+      "short": "Impair Process Control",
+      "techniques": [
+        {
+          "id": "T0836",
+          "name": "Modificar parámetro",
+          "tactic_goal": "Alterar un parámetro de proceso (ej. velocidad de un motor) fuera de rango seguro."
+        },
+        {
+          "id": "T0831",
+          "name": "Manipulación de control",
+          "tactic_goal": "Cambiar setpoints o tags para alterar el proceso físico directamente."
+        },
+        {
+          "id": "T0806",
+          "name": "Fuerza bruta de I/O",
+          "tactic_goal": "Forzar repetidamente valores de I/O para desestabilizar una función de proceso."
+        },
+        {
+          "id": "T0835",
+          "name": "Manipular imagen de I/O",
+          "tactic_goal": "Sobrescribir la tabla de imagen de I/O de un PLC para que reporte/actúe de forma incorrecta."
+        },
+        {
+          "id": "T1692.001",
+          "name": "Mensaje de comando no autorizado",
+          "tactic_goal": "Enviar comandos válidos en protocolo pero no autorizados directamente al PLC/RTU."
+        }
+      ]
+    },
+    {
+      "id": "TA0105",
+      "name": "Impacto físico",
+      "short": "Impact",
+      "techniques": [
+        {
+          "id": "T0879",
+          "name": "Daño a la propiedad",
+          "tactic_goal": "Provocar daño físico a equipo o infraestructura de planta."
+        },
+        {
+          "id": "T0816",
+          "name": "Reinicio/apagado de dispositivo",
+          "tactic_goal": "Forzar el reinicio o apagado de un dispositivo para interrumpir el proceso."
+        },
+        {
+          "id": "T0827",
+          "name": "Pérdida de control",
+          "tactic_goal": "Provocar que el operador ya no pueda emitir comandos válidos al proceso."
+        },
+        {
+          "id": "T0880",
+          "name": "Pérdida de seguridad (safety)",
+          "tactic_goal": "Comprometer sistemas instrumentados de seguridad, con riesgo para las personas."
+        },
+        {
+          "id": "T0828",
+          "name": "Pérdida de productividad e ingresos",
+          "tactic_goal": "Paro de línea/producción con impacto financiero directo."
+        },
+        {
+          "id": "T0829",
+          "name": "Pérdida de visibilidad",
+          "tactic_goal": "El operador deja de ver el estado real del proceso mientras el ataque continúa."
+        },
+        {
+          "id": "T0826",
+          "name": "Pérdida de disponibilidad",
+          "tactic_goal": "Los sistemas dejan de estar disponibles para operar el proceso."
+        },
+        {
+          "id": "T0832",
+          "name": "Manipulación de vista",
+          "tactic_goal": "Mostrar al operador información falsa mientras el proceso real está en otro estado."
+        }
+      ]
+    }
+  ]
+}

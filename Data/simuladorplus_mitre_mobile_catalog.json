@@ -1,0 +1,314 @@
+{
+  "version": "1.0.0",
+  "matrix": "mobile",
+  "matrix_label": "Mobile",
+  "source": "MITRE ATT&CK for Mobile — subconjunto curado, IDs verificados contra attack.mitre.org",
+  "last_updated": "2026-09-01",
+  "note": "Subconjunto curado orientado a fraude en banca móvil / apps fintech (SIM swap, interceptación de OTP, overlays de phishing). IDs y nombres verificados contra el sitio oficial de MITRE — re-verificar periódicamente antes de uso en producción regulada.",
+  "tactics": [
+    {
+      "id": "TA0027",
+      "name": "Acceso inicial",
+      "short": "Initial Access",
+      "techniques": [
+        {
+          "id": "T1660",
+          "name": "Phishing",
+          "tactic_goal": "Enviar contenido malicioso (SMS, correo, apps falsas) para obtener acceso al dispositivo."
+        },
+        {
+          "id": "T1456",
+          "name": "Drive-by Compromise",
+          "tactic_goal": "Comprometer el dispositivo al visitar un sitio malicioso desde el navegador móvil."
+        },
+        {
+          "id": "T1664",
+          "name": "Explotación para acceso inicial",
+          "tactic_goal": "Explotar una vulnerabilidad del dispositivo para obtener acceso inicial."
+        },
+        {
+          "id": "T1458",
+          "name": "Replicación por medios removibles",
+          "tactic_goal": "Instalar malware al conectar el dispositivo a una estación de carga o PC comprometida."
+        }
+      ]
+    },
+    {
+      "id": "TA0041",
+      "name": "Ejecución",
+      "short": "Execution",
+      "techniques": [
+        {
+          "id": "T1623",
+          "name": "Intérprete de comandos y scripts",
+          "tactic_goal": "Ejecutar comandos vía shell del dispositivo (rooteado/jailbreak)."
+        },
+        {
+          "id": "T1658",
+          "name": "Explotación para ejecución en cliente",
+          "tactic_goal": "Explotar una vulnerabilidad de una app para lograr ejecución de código."
+        },
+        {
+          "id": "T1575",
+          "name": "Native API",
+          "tactic_goal": "Usar APIs nativas de bajo nivel para ejecutar funciones fuera del SDK normal."
+        }
+      ]
+    },
+    {
+      "id": "TA0028",
+      "name": "Persistencia",
+      "short": "Persistence",
+      "techniques": [
+        {
+          "id": "T1398",
+          "name": "Scripts de inicio",
+          "tactic_goal": "Ejecutar código automáticamente al iniciar/hacer login en el dispositivo."
+        },
+        {
+          "id": "T1624",
+          "name": "Ejecución activada por eventos",
+          "tactic_goal": "Suscribirse a eventos del sistema (SMS, boot) para mantener persistencia."
+        },
+        {
+          "id": "T1577",
+          "name": "Comprometer ejecutable de la app",
+          "tactic_goal": "Modificar una app legítima instalada para que ejecute también código malicioso."
+        },
+        {
+          "id": "T1645",
+          "name": "Comprometer binario del sistema",
+          "tactic_goal": "Modificar binarios del sistema para persistencia a nivel de dispositivo."
+        }
+      ]
+    },
+    {
+      "id": "TA0029",
+      "name": "Escalamiento de privilegios",
+      "short": "Privilege Escalation",
+      "techniques": [
+        {
+          "id": "T1626",
+          "name": "Abuso de control de elevación",
+          "tactic_goal": "Abusar de la API de administración del dispositivo para obtener mayor control."
+        },
+        {
+          "id": "T1404",
+          "name": "Explotación para escalamiento de privilegios",
+          "tactic_goal": "Explotar una vulnerabilidad del SO móvil para elevar privilegios."
+        },
+        {
+          "id": "T1631",
+          "name": "Inyección de proceso",
+          "tactic_goal": "Inyectar código en el espacio de memoria de otro proceso para elevar privilegios/evadir defensas."
+        }
+      ]
+    },
+    {
+      "id": "TA0030",
+      "name": "Evasión de defensas",
+      "short": "Defense Evasion",
+      "techniques": [
+        {
+          "id": "T1628",
+          "name": "Ocultar artefactos",
+          "tactic_goal": "Ocultar el ícono de la app maliciosa o su presencia en el dispositivo."
+        },
+        {
+          "id": "T1630",
+          "name": "Eliminación de indicadores en el host",
+          "tactic_goal": "Borrar archivos o rastros de la app maliciosa."
+        },
+        {
+          "id": "T1655",
+          "name": "Masquerading",
+          "tactic_goal": "Hacer pasar la app maliciosa por una legítima (nombre, ícono, package name)."
+        },
+        {
+          "id": "T1406",
+          "name": "Archivos/información ofuscada",
+          "tactic_goal": "Ofuscar el payload para evadir el análisis en tiendas de apps."
+        },
+        {
+          "id": "T1632",
+          "name": "Subvertir controles de confianza",
+          "tactic_goal": "Evadir advertencias del sistema sobre apps de origen no confiable."
+        }
+      ]
+    },
+    {
+      "id": "TA0031",
+      "name": "Acceso a credenciales",
+      "short": "Credential Access",
+      "techniques": [
+        {
+          "id": "T1417",
+          "name": "Captura de entrada",
+          "tactic_goal": "Capturar credenciales tecleadas o mostradas mediante overlays falsos (GUI Input Capture)."
+        },
+        {
+          "id": "T1634",
+          "name": "Credenciales del almacén de contraseñas",
+          "tactic_goal": "Extraer credenciales guardadas en el gestor de contraseñas del dispositivo."
+        },
+        {
+          "id": "T1517",
+          "name": "Acceso a notificaciones",
+          "tactic_goal": "Interceptar OTP/códigos de un solo uso enviados por SMS o notificación."
+        },
+        {
+          "id": "T1635",
+          "name": "Robo de token de acceso de aplicación",
+          "tactic_goal": "Robar tokens de sesión de apps bancarias vía ingeniería social o URI hijacking."
+        }
+      ]
+    },
+    {
+      "id": "TA0032",
+      "name": "Descubrimiento",
+      "short": "Discovery",
+      "techniques": [
+        {
+          "id": "T1420",
+          "name": "Descubrimiento de archivos y directorios",
+          "tactic_goal": "Buscar archivos de interés (ej. datos de apps bancarias) en el dispositivo."
+        },
+        {
+          "id": "T1418",
+          "name": "Descubrimiento de software",
+          "tactic_goal": "Listar apps instaladas para identificar apps bancarias objetivo."
+        },
+        {
+          "id": "T1426",
+          "name": "Descubrimiento de información del sistema",
+          "tactic_goal": "Obtener versión de SO/hardware para adaptar el ataque."
+        },
+        {
+          "id": "T1424",
+          "name": "Descubrimiento de procesos",
+          "tactic_goal": "Detectar qué app está en primer plano para mostrar un overlay falso en el momento correcto."
+        }
+      ]
+    },
+    {
+      "id": "TA0033",
+      "name": "Movimiento lateral",
+      "short": "Lateral Movement",
+      "techniques": [
+        {
+          "id": "T1428",
+          "name": "Explotación de servicios remotos",
+          "tactic_goal": "Usar el acceso del dispositivo a la red corporativa (VPN) para moverse hacia sistemas internos."
+        }
+      ]
+    },
+    {
+      "id": "TA0035",
+      "name": "Recolección",
+      "short": "Collection",
+      "techniques": [
+        {
+          "id": "T1533",
+          "name": "Datos del sistema local",
+          "tactic_goal": "Recolectar datos almacenados localmente en el dispositivo."
+        },
+        {
+          "id": "T1513",
+          "name": "Captura de pantalla",
+          "tactic_goal": "Capturar pantallas de apps bancarias para obtener datos sensibles."
+        },
+        {
+          "id": "T1636",
+          "name": "Datos protegidos del usuario",
+          "tactic_goal": "Acceder a contactos, SMS o cuentas mediante APIs con permisos del SO."
+        },
+        {
+          "id": "T1429",
+          "name": "Captura de audio",
+          "tactic_goal": "Grabar audio ambiente o llamadas del usuario."
+        }
+      ]
+    },
+    {
+      "id": "TA0037",
+      "name": "Comando y control",
+      "short": "Command and Control",
+      "techniques": [
+        {
+          "id": "T1437",
+          "name": "Protocolo de capa de aplicación",
+          "tactic_goal": "Comunicarse con C2 mezclándose con tráfico web normal."
+        },
+        {
+          "id": "T1521",
+          "name": "Canal cifrado",
+          "tactic_goal": "Cifrar el tráfico de C2 para evadir inspección de red."
+        },
+        {
+          "id": "T1481",
+          "name": "Servicio web",
+          "tactic_goal": "Usar un servicio web legítimo (redes sociales, etc.) como canal de C2."
+        },
+        {
+          "id": "T1604",
+          "name": "Proxy a través de la víctima",
+          "tactic_goal": "Usar el dispositivo comprometido como proxy hacia otros servicios."
+        }
+      ]
+    },
+    {
+      "id": "TA0036",
+      "name": "Exfiltración",
+      "short": "Exfiltration",
+      "techniques": [
+        {
+          "id": "T1646",
+          "name": "Exfiltración sobre canal C2",
+          "tactic_goal": "Enviar datos robados por el mismo canal usado para C2."
+        },
+        {
+          "id": "T1639",
+          "name": "Exfiltración sobre protocolo alternativo",
+          "tactic_goal": "Enviar datos por un canal distinto al de C2, ej. SMS."
+        }
+      ]
+    },
+    {
+      "id": "TA0034",
+      "name": "Impacto",
+      "short": "Impact",
+      "techniques": [
+        {
+          "id": "T1471",
+          "name": "Datos cifrados para impacto",
+          "tactic_goal": "Cifrar archivos del dispositivo para extorsión (ransomware móvil)."
+        },
+        {
+          "id": "T1642",
+          "name": "Denegación de servicio en el endpoint",
+          "tactic_goal": "Degradar o bloquear la disponibilidad de servicios del dispositivo."
+        },
+        {
+          "id": "T1662",
+          "name": "Destrucción de datos",
+          "tactic_goal": "Borrar datos del dispositivo de forma irrecuperable."
+        },
+        {
+          "id": "T1451",
+          "name": "SIM Swap",
+          "tactic_goal": "Transferir el número de la víctima a una SIM controlada por el atacante para interceptar SMS/OTP — clave en fraude SPEI."
+        },
+        {
+          "id": "T1582",
+          "name": "Control de SMS",
+          "tactic_goal": "Borrar, alterar o enviar SMS sin autorización, ej. para ocultar alertas bancarias."
+        },
+        {
+          "id": "T1640",
+          "name": "Eliminación de acceso a cuentas",
+          "tactic_goal": "Bloquear al usuario legítimo de sus propias cuentas."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,530 @@
+{
+  "version": "1.0.0",
+  "note": "Plantillas de secuencia táctica reutilizables entre escenarios. En la UI se muestran como 'Arco'.",
+  "chains": [
+    {
+      "id": "chain_it_ot_ransomware",
+      "name": "Ransomware con pivote IT→OT",
+      "description": "El compromiso inicia en la red corporativa (IT) y escala hacia el entorno de planta/proceso físico (OT) por segmentación insuficiente.",
+      "matrices_involucradas": [
+        "enterprise",
+        "ics"
+      ],
+      "industry_verticals_recomendadas": [
+        "manufactura_ot"
+      ],
+      "etapas": [
+        {
+          "orden": 1,
+          "matriz": "enterprise",
+          "tactic_id": "TA0001",
+          "titulo": "Acceso inicial a IT (phishing)",
+          "tecnicas_sugeridas": [
+            "T1566.001"
+          ],
+          "hint_narrativo": "El punto de entrada casi siempre es la red corporativa, no OT directamente."
+        },
+        {
+          "orden": 2,
+          "matriz": "enterprise",
+          "tactic_id": "TA0001",
+          "titulo": "Triage inicial y activación de protocolo",
+          "tecnicas_sugeridas": [
+            "T1078"
+          ],
+          "hint_narrativo": "La velocidad de activación del IRP determina cuánta ventana tiene el atacante para pivotar."
+        },
+        {
+          "orden": 3,
+          "matriz": "enterprise",
+          "tactic_id": "TA0008",
+          "titulo": "Pivote hacia la red OT",
+          "tecnicas_sugeridas": [
+            "T1021"
+          ],
+          "hint_narrativo": "El fallo típico: una estación de ingeniería dual-homed sin segmentación IT/OT."
+        },
+        {
+          "orden": 4,
+          "matriz": "ics",
+          "tactic_id": "TA0102",
+          "titulo": "Descubrimiento de activos OT",
+          "tecnicas_sugeridas": [
+            "T0888",
+            "T0846"
+          ]
+        },
+        {
+          "orden": 5,
+          "matriz": "ics",
+          "tactic_id": "TA0110",
+          "titulo": "Persistencia en la red OT",
+          "tecnicas_sugeridas": [
+            "T0859",
+            "T0889"
+          ]
+        },
+        {
+          "orden": 6,
+          "matriz": "ics",
+          "tactic_id": "TA0107",
+          "titulo": "Inhibir alarmas y funciones de respuesta",
+          "tecnicas_sugeridas": [
+            "T0878",
+            "T0838"
+          ]
+        },
+        {
+          "orden": 7,
+          "matriz": "ics",
+          "tactic_id": "TA0106",
+          "titulo": "Comando no autorizado al PLC — dilema aislar vs. producir",
+          "tecnicas_sugeridas": [
+            "T1692.001",
+            "T0836"
+          ],
+          "hint_narrativo": "El dilema clásico de OT: aislar detiene el ataque pero también la producción."
+        },
+        {
+          "orden": 8,
+          "matriz": "ics",
+          "tactic_id": "TA0105",
+          "titulo": "Impacto físico / paro de línea",
+          "tecnicas_sugeridas": [
+            "T0816",
+            "T0879"
+          ]
+        },
+        {
+          "orden": 9,
+          "matriz": "enterprise",
+          "tactic_id": "TA0040",
+          "titulo": "Comunicación regulatoria y con socios OEM",
+          "tecnicas_sugeridas": [
+            "T1657"
+          ],
+          "hint_narrativo": "Una armadora tiene obligaciones contractuales con el OEM matriz, no solo regulatorias."
+        },
+        {
+          "orden": 10,
+          "matriz": "enterprise",
+          "tactic_id": "TA0040",
+          "titulo": "Recuperación y lecciones aprendidas",
+          "tecnicas_sugeridas": [],
+          "hint_narrativo": "Decisión a nivel Consejo sobre inversión en segmentación IEC 62443."
+        }
+      ]
+    },
+    {
+      "id": "chain_it_ransomware_extortion",
+      "name": "Ransomware con doble extorsión (IT puro)",
+      "description": "Cifrado de datos con amenaza de filtración, sin llegar a impactar proceso físico.",
+      "matrices_involucradas": [
+        "enterprise"
+      ],
+      "industry_verticals_recomendadas": [
+        "ifpe_cnbv",
+        "general"
+      ],
+      "etapas": [
+        {
+          "orden": 1,
+          "matriz": "enterprise",
+          "tactic_id": "TA0001",
+          "titulo": "Acceso inicial",
+          "tecnicas_sugeridas": [
+            "T1190",
+            "T1566"
+          ]
+        },
+        {
+          "orden": 2,
+          "matriz": "enterprise",
+          "tactic_id": "TA0003",
+          "titulo": "Persistencia",
+          "tecnicas_sugeridas": [
+            "T1098",
+            "T1078.003"
+          ]
+        },
+        {
+          "orden": 3,
+          "matriz": "enterprise",
+          "tactic_id": "TA0005",
+          "titulo": "Evasión de defensas",
+          "tecnicas_sugeridas": [
+            "T1562",
+            "T1553"
+          ]
+        },
+        {
+          "orden": 4,
+          "matriz": "enterprise",
+          "tactic_id": "TA0009",
+          "titulo": "Recolección de datos sensibles",
+          "tecnicas_sugeridas": [
+            "T1560",
+            "T1114"
+          ]
+        },
+        {
+          "orden": 5,
+          "matriz": "enterprise",
+          "tactic_id": "TA0010",
+          "titulo": "Exfiltración previa al cifrado",
+          "tecnicas_sugeridas": [
+            "T1041",
+            "T1567"
+          ]
+        },
+        {
+          "orden": 6,
+          "matriz": "enterprise",
+          "tactic_id": "TA0040",
+          "titulo": "Cifrado e impacto",
+          "tecnicas_sugeridas": [
+            "T1486"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chain_bec_fraude_transferencia",
+      "name": "BEC / Fraude en transferencia",
+      "description": "Compromiso de correo ejecutivo para ordenar transferencias fraudulentas.",
+      "matrices_involucradas": [
+        "enterprise"
+      ],
+      "industry_verticals_recomendadas": [
+        "ifpe_cnbv"
+      ],
+      "etapas": [
+        {
+          "orden": 1,
+          "matriz": "enterprise",
+          "tactic_id": "TA0001",
+          "titulo": "Phishing dirigido al correo ejecutivo",
+          "tecnicas_sugeridas": [
+            "T1566.001"
+          ]
+        },
+        {
+          "orden": 2,
+          "matriz": "enterprise",
+          "tactic_id": "TA0006",
+          "titulo": "Robo de credenciales de correo",
+          "tecnicas_sugeridas": [
+            "T1552",
+            "T1110"
+          ]
+        },
+        {
+          "orden": 3,
+          "matriz": "enterprise",
+          "tactic_id": "TA0009",
+          "titulo": "Vigilancia de la bandeja de entrada",
+          "tecnicas_sugeridas": [
+            "T1114"
+          ]
+        },
+        {
+          "orden": 4,
+          "matriz": "enterprise",
+          "tactic_id": "TA0005",
+          "titulo": "Suplantación / reglas de reenvío",
+          "tecnicas_sugeridas": [
+            "T1078"
+          ]
+        },
+        {
+          "orden": 5,
+          "matriz": "enterprise",
+          "tactic_id": "TA0040",
+          "titulo": "Orden de transferencia fraudulenta",
+          "tecnicas_sugeridas": [
+            "T1657"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chain_insider_privileged_exfil",
+      "name": "Insider con acceso privilegiado",
+      "description": "Empleado con acceso legítimo que exfiltra datos antes de su salida de la organización.",
+      "matrices_involucradas": [
+        "enterprise"
+      ],
+      "industry_verticals_recomendadas": [
+        "ifpe_cnbv",
+        "general"
+      ],
+      "etapas": [
+        {
+          "orden": 1,
+          "matriz": "enterprise",
+          "tactic_id": "TA0009",
+          "titulo": "Recolección usando acceso legítimo",
+          "tecnicas_sugeridas": [
+            "T1078",
+            "T1560"
+          ]
+        },
+        {
+          "orden": 2,
+          "matriz": "enterprise",
+          "tactic_id": "TA0005",
+          "titulo": "Evasión de controles de monitoreo",
+          "tecnicas_sugeridas": [
+            "T1562"
+          ]
+        },
+        {
+          "orden": 3,
+          "matriz": "enterprise",
+          "tactic_id": "TA0010",
+          "titulo": "Exfiltración",
+          "tecnicas_sugeridas": [
+            "T1567",
+            "T1041"
+          ]
+        },
+        {
+          "orden": 4,
+          "matriz": "enterprise",
+          "tactic_id": "TA0040",
+          "titulo": "Impacto — pérdida de datos de clientes",
+          "tecnicas_sugeridas": [
+            "T1657"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chain_supply_chain_compromise",
+      "name": "Compromiso de cadena de suministro",
+      "description": "Un proveedor de software/servicios comprometido se usa como vector hacia la organización.",
+      "matrices_involucradas": [
+        "enterprise"
+      ],
+      "industry_verticals_recomendadas": [
+        "ifpe_cnbv",
+        "manufactura_ot",
+        "general"
+      ],
+      "etapas": [
+        {
+          "orden": 1,
+          "matriz": "enterprise",
+          "tactic_id": "TA0001",
+          "titulo": "Acceso vía proveedor comprometido",
+          "tecnicas_sugeridas": [
+            "T1195.002",
+            "T1195"
+          ]
+        },
+        {
+          "orden": 2,
+          "matriz": "enterprise",
+          "tactic_id": "TA0003",
+          "titulo": "Persistencia mediante actualización maliciosa",
+          "tecnicas_sugeridas": [
+            "T1546"
+          ]
+        },
+        {
+          "orden": 3,
+          "matriz": "enterprise",
+          "tactic_id": "TA0008",
+          "titulo": "Movimiento lateral hacia sistemas críticos",
+          "tecnicas_sugeridas": [
+            "T1021"
+          ]
+        },
+        {
+          "orden": 4,
+          "matriz": "enterprise",
+          "tactic_id": "TA0040",
+          "titulo": "Impacto",
+          "tecnicas_sugeridas": [
+            "T1486",
+            "T1485"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chain_apt_nation_state_persistent",
+      "name": "APT de estado-nación — presencia sostenida",
+      "description": "Actor patrocinado por estado con acceso prolongado, reconocimiento profundo y objetivos estratégicos.",
+      "matrices_involucradas": [
+        "enterprise"
+      ],
+      "industry_verticals_recomendadas": [
+        "ifpe_cnbv"
+      ],
+      "etapas": [
+        {
+          "orden": 1,
+          "matriz": "enterprise",
+          "tactic_id": "TA0043",
+          "titulo": "Reconocimiento extenso",
+          "tecnicas_sugeridas": [
+            "T1591",
+            "T1590",
+            "T1592"
+          ]
+        },
+        {
+          "orden": 2,
+          "matriz": "enterprise",
+          "tactic_id": "TA0001",
+          "titulo": "Acceso inicial sigiloso",
+          "tecnicas_sugeridas": [
+            "T1190",
+            "T1078"
+          ]
+        },
+        {
+          "orden": 3,
+          "matriz": "enterprise",
+          "tactic_id": "TA0003",
+          "titulo": "Persistencia de largo plazo",
+          "tecnicas_sugeridas": [
+            "T1098",
+            "T1546"
+          ]
+        },
+        {
+          "orden": 4,
+          "matriz": "enterprise",
+          "tactic_id": "TA0005",
+          "titulo": "Evasión sostenida de detección",
+          "tecnicas_sugeridas": [
+            "T1562",
+            "T1553"
+          ]
+        },
+        {
+          "orden": 5,
+          "matriz": "enterprise",
+          "tactic_id": "TA0008",
+          "titulo": "Movimiento lateral selectivo",
+          "tecnicas_sugeridas": [
+            "T1021",
+            "T1563"
+          ]
+        },
+        {
+          "orden": 6,
+          "matriz": "enterprise",
+          "tactic_id": "TA0010",
+          "titulo": "Exfiltración de bajo perfil",
+          "tecnicas_sugeridas": [
+            "T1041",
+            "T1567"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chain_credential_stuffing_masivo",
+      "name": "Credential stuffing masivo",
+      "description": "Ataque automatizado a gran escala contra cuentas de usuarios con credenciales filtradas de otros incidentes.",
+      "matrices_involucradas": [
+        "enterprise"
+      ],
+      "industry_verticals_recomendadas": [
+        "ifpe_cnbv"
+      ],
+      "etapas": [
+        {
+          "orden": 1,
+          "matriz": "enterprise",
+          "tactic_id": "TA0043",
+          "titulo": "Adquisición de credenciales filtradas",
+          "tecnicas_sugeridas": [
+            "T1596",
+            "T1597"
+          ]
+        },
+        {
+          "orden": 2,
+          "matriz": "enterprise",
+          "tactic_id": "TA0006",
+          "titulo": "Ataque automatizado a gran escala",
+          "tecnicas_sugeridas": [
+            "T1110.004"
+          ]
+        },
+        {
+          "orden": 3,
+          "matriz": "enterprise",
+          "tactic_id": "TA0001",
+          "titulo": "Toma de cuentas exitosas",
+          "tecnicas_sugeridas": [
+            "T1078"
+          ]
+        },
+        {
+          "orden": 4,
+          "matriz": "enterprise",
+          "tactic_id": "TA0040",
+          "titulo": "Impacto — fraude en cuentas comprometidas",
+          "tecnicas_sugeridas": [
+            "T1657"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chain_third_party_connectivity_compromise",
+      "name": "Compromiso de proveedor de conectividad (patrón SPEI 2018)",
+      "description": "Compromiso de un proveedor/conexión intermedia hacia el sistema de pagos, seguido de transferencias fraudulentas.",
+      "matrices_involucradas": [
+        "enterprise"
+      ],
+      "industry_verticals_recomendadas": [
+        "ifpe_cnbv"
+      ],
+      "etapas": [
+        {
+          "orden": 1,
+          "matriz": "enterprise",
+          "tactic_id": "TA0001",
+          "titulo": "Acceso vía proveedor de conectividad",
+          "tecnicas_sugeridas": [
+            "T1195",
+            "T1078"
+          ]
+        },
+        {
+          "orden": 2,
+          "matriz": "enterprise",
+          "tactic_id": "TA0008",
+          "titulo": "Movimiento lateral hacia el sistema de conexión al pago",
+          "tecnicas_sugeridas": [
+            "T1021"
+          ]
+        },
+        {
+          "orden": 3,
+          "matriz": "enterprise",
+          "tactic_id": "TA0005",
+          "titulo": "Evasión de controles de conciliación",
+          "tecnicas_sugeridas": [
+            "T1562"
+          ]
+        },
+        {
+          "orden": 4,
+          "matriz": "enterprise",
+          "tactic_id": "TA0040",
+          "titulo": "Transferencias fraudulentas — impacto sistémico",
+          "tecnicas_sugeridas": [
+            "T1657"
+          ]
+        }
+      ]
+    }
+  ]
+}
